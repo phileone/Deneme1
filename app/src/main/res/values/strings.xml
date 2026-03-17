@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tetris</string>
+    <string name="btn_play">PLAY</string>
+    <string name="btn_play_again">PLAY AGAIN</string>
+    <string name="label_score">SCORE</string>
+    <string name="label_level">LEVEL</string>
+    <string name="label_next">NEXT</string>
+    <string name="game_over">GAME OVER</string>
+    <string name="final_score">Score: %d</string>
+</resources>

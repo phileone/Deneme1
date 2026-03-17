@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorBackground">#1A1A2E</color>
+    <color name="colorGrid">#2A2A4A</color>
+    <color name="colorBoardBg">#0D0D1A</color>
+    <color name="colorI">#00FFFF</color>
+    <color name="colorO">#FFFF00</color>
+    <color name="colorT">#AA00FF</color>
+    <color name="colorS">#00FF00</color>
+    <color name="colorZ">#FF4444</color>
+    <color name="colorJ">#4488FF</color>
+    <color name="colorL">#FF7F00</color>
+    <color name="colorGhost">#40FFFFFF</color>
+    <color name="colorText">#FFFFFF</color>
+    <color name="colorHudBg">#33FFFFFF</color>
+    <color name="colorButton">#E94560</color>
+    <color name="colorButtonText">#FFFFFF</color>
+</resources>
