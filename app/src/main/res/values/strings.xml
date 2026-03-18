@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Tetris</string>
-    <string name="btn_play">PLAY</string>
-    <string name="btn_play_again">PLAY AGAIN</string>
-    <string name="label_score">SCORE</string>
-    <string name="label_level">LEVEL</string>
-    <string name="label_next">NEXT</string>
-    <string name="game_over">GAME OVER</string>
-    <string name="final_score">Score: %d</string>
+    <string name="app_name">PDF Düzenleyici</string>
+    <string name="all_pdfs_title">Tüm PDF\'ler</string>
+    <string name="folders_title">Klasörler</string>
+    <string name="search_hint">PDF ara…</string>
+    <string name="sort">Sırala</string>
+    <string name="no_pdfs_found">PDF bulunamadı</string>
+    <string name="no_folders">Henüz klasör yok.\nSağ alttaki + butonuna bas.</string>
+    <string name="empty_folder">Bu klasörde PDF yok</string>
+    <string name="new_folder">Yeni Klasör</string>
+    <string name="assign_folder">Klasöre Taşı</string>
+    <string name="folder_name_hint">Klasör Adı</string>
+    <string name="choose_color">Renk Seç</string>
+    <string name="permission_denied_message">Depolama izni verilmedi. PDF\'ler taranamıyor.</string>
 </resources>
