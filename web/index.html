@@ -46,9 +46,14 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#2b2b2b;display:flex
 #AC{position:absolute;top:0;left:0}
 
 /* Text edit panel */
-.text-panel{position:absolute;z-index:100;background:#1e2a3a;border:1.5px solid #42a5f5;border-radius:8px;padding:8px 10px;box-shadow:0 4px 20px rgba(0,0,0,.6);min-width:220px;pointer-events:all}
-.text-panel input{width:100%;background:#0d1a2a;color:#fff;border:1px solid #333;border-radius:5px;padding:5px 8px;font-size:13px;margin-bottom:7px;outline:none}
-.text-panel input:focus{border-color:#42a5f5}
+.text-panel{position:absolute;z-index:100;background:#1e2a3a;border:1.5px solid #42a5f5;border-radius:8px;padding:8px 10px;box-shadow:0 4px 20px rgba(0,0,0,.6);min-width:230px;pointer-events:all}
+.tp-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.tp-meta label{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.4px}
+.tp-meta input[type=color]{width:26px;height:22px;border:none;border-radius:3px;cursor:pointer;background:none;padding:1px;flex-shrink:0}
+.tp-meta input[type=number]{width:46px;background:#0d1a2a;color:#90caf9;border:1px solid #333;border-radius:4px;padding:3px 4px;font-size:12px;font-weight:700;text-align:center}
+.tp-meta span{font-size:10px;color:#555}
+.text-panel > input[type=text]{width:100%;background:#0d1a2a;color:#fff;border:1px solid #333;border-radius:5px;padding:5px 8px;font-size:13px;margin-bottom:7px;outline:none}
+.text-panel > input[type=text]:focus{border-color:#42a5f5}
 .tp-btns{display:flex;gap:5px}
 .tp-btns button{flex:1;padding:5px 4px;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600}
 .tp-ok {background:#1565c0;color:#fff} .tp-ok:hover {background:#0d47a1}
@@ -59,18 +64,40 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#2b2b2b;display:flex
 .clone-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(20,100,200,.85);color:#fff;padding:6px 14px;border-radius:20px;font-size:12.5px;pointer-events:none;z-index:90;white-space:nowrap}
 
 /* Right panel */
-.right-panel{width:184px;background:#1e1e1e;border-left:1px solid #333;padding:9px 8px;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;gap:9px}
-.rp-title{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#666;margin-bottom:5px}
-.rp-row{display:flex;align-items:center;gap:5px;margin-bottom:5px}
-.rp-row label{font-size:11.5px;color:#999;min-width:46px}
-.rp-row input[type=color]{width:30px;height:22px;border:none;border-radius:3px;cursor:pointer;background:none;padding:1px}
-.rp-row input[type=range]{flex:1;accent-color:#42a5f5}
-.rp-row input[type=number]{width:44px;background:#252525;color:#fff;border:1px solid #444;border-radius:4px;padding:3px 4px;font-size:12px}
+.right-panel{width:196px;background:#1a1a1a;border-left:1px solid #333;padding:10px 8px;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
+.rp-sec{display:flex;flex-direction:column;gap:5px}
+.rp-lbl{display:flex;justify-content:space-between;align-items:center}
+.rp-lbl span:first-child{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#666}
+.rp-lbl .rp-val{font-size:12px;font-weight:700;color:#90caf9}
+/* Color swatches */
+.swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:3px}
+.sw{width:100%;aspect-ratio:1;border-radius:3px;cursor:pointer;border:2px solid transparent;transition:border-color .1s}
+.sw:hover{border-color:#fff}
+.sw.active{border-color:#fff;box-shadow:0 0 0 1px #42a5f5}
+.rp-colorpick{width:100%;height:28px;border:none;border-radius:5px;cursor:pointer;background:none;padding:0}
+/* Sliders */
+.rp-slider{width:100%;accent-color:#42a5f5;cursor:pointer}
+/* Preset buttons */
+.presets{display:flex;gap:3px;flex-wrap:wrap}
+.presets button{padding:3px 6px;background:#252525;color:#aaa;border:1px solid #3a3a3a;border-radius:4px;cursor:pointer;font-size:10.5px}
+.presets button:hover{background:#333;color:#fff}
+.presets button.active{background:#1565c0;color:#fff;border-color:#42a5f5}
+/* Grid toggle */
+.rp-toggle-row{display:flex;align-items:center;justify-content:space-between}
+.toggle-sw{position:relative;width:36px;height:18px;flex-shrink:0}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-sw span{position:absolute;cursor:pointer;inset:0;background:#333;border-radius:18px;transition:.2s}
+.toggle-sw span::before{content:'';position:absolute;width:14px;height:14px;left:2px;bottom:2px;background:#aaa;border-radius:50%;transition:.2s}
+.toggle-sw input:checked + span{background:#1565c0}
+.toggle-sw input:checked + span::before{transform:translateX(18px);background:#fff}
+/* Nav */
 .rp-nav{display:flex;gap:4px}
 .rp-nav button{flex:1;padding:5px 3px;background:#252525;color:#bbb;border:1px solid #3a3a3a;border-radius:5px;cursor:pointer;font-size:12px}
 .rp-nav button:hover{background:#333}
 .hint-box{background:#111b11;border:1px solid #2a4a2a;border-radius:6px;padding:6px 8px;font-size:11px;color:#6a9a6a;line-height:1.55}
 .page-info{font-size:11px;color:#555;text-align:center;margin-top:auto}
+/* Grid overlay canvas */
+#GC{position:absolute;top:0;left:0;pointer-events:none;}
 
 /* Empty state */
 .empty-view{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#555}
@@ -142,9 +169,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#2b2b2b;display:flex
 
     <div class="page-wrap" id="pageWrap" style="display:none">
       <canvas id="PC"></canvas><!-- pdf canvas -->
+      <canvas id="GC"></canvas><!-- grid canvas -->
       <canvas id="AC"></canvas><!-- annotation canvas -->
       <!-- Text edit panel (inside pageWrap for correct absolute positioning) -->
       <div class="text-panel" id="textPanel" style="display:none">
+        <div class="tp-meta">
+          <input type="color" id="tpColor" value="#000000" title="Metin rengi">
+          <label>Boyut</label>
+          <input type="number" id="tpSize" min="4" max="200" value="12">
+          <span>px</span>
+        </div>
         <input type="text" id="tpInput" placeholder="Metin yazın…">
         <div class="tp-btns">
           <button class="tp-ok"  id="tpOK">✓ Onayla</button>
@@ -159,19 +193,57 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#2b2b2b;display:flex
 
   <!-- Right panel -->
   <div class="right-panel">
-    <div>
-      <div class="rp-title">Çizim Ayarları</div>
-      <div class="rp-row"><label>Renk</label><input type="color" id="dColor" value="#e53935"></div>
-      <div class="rp-row"><label>Boyut</label><input type="range" id="dSize" min="1" max="40" value="4"><input type="number" id="dSizeN" value="4" min="1" max="40"></div>
-      <div class="rp-row"><label>Opaklık</label><input type="range" id="dOpa" min="10" max="100" value="100"><input type="number" id="dOpaN" value="100" min="10" max="100"></div>
+    <!-- Renk -->
+    <div class="rp-sec">
+      <div class="rp-lbl"><span>Renk</span></div>
+      <div class="swatches" id="swatches"></div>
+      <input type="color" id="dColor" class="rp-colorpick" value="#e53935" title="Özel renk seç">
     </div>
-    <div>
-      <div class="rp-title">Gezinti</div>
+
+    <!-- Boyut -->
+    <div class="rp-sec">
+      <div class="rp-lbl"><span>Boyut</span><span class="rp-val" id="dSizeVal">4px</span></div>
+      <input type="range" class="rp-slider" id="dSize" min="1" max="60" value="4">
+      <div class="presets" id="sizePresets">
+        <button data-sz="2">İnce</button>
+        <button data-sz="4" class="active">Normal</button>
+        <button data-sz="8">Kalın</button>
+        <button data-sz="16">Çok kalın</button>
+      </div>
+    </div>
+
+    <!-- Opaklık -->
+    <div class="rp-sec">
+      <div class="rp-lbl"><span>Opaklık</span><span class="rp-val" id="dOpaVal">100%</span></div>
+      <input type="range" class="rp-slider" id="dOpa" min="10" max="100" value="100">
+      <div class="presets" id="opaPresets">
+        <button data-opa="25">25%</button>
+        <button data-opa="50">50%</button>
+        <button data-opa="75">75%</button>
+        <button data-opa="100" class="active">100%</button>
+      </div>
+    </div>
+
+    <!-- Izgara -->
+    <div class="rp-sec">
+      <div class="rp-toggle-row">
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#666">Izgara / Hizala</span>
+        <label class="toggle-sw"><input type="checkbox" id="gridToggle"><span></span></label>
+      </div>
+      <div id="gridControls" style="display:none">
+        <div class="rp-lbl" style="margin-top:4px"><span style="font-size:10px;color:#666">Aralık</span><span class="rp-val" id="gridSzVal">20px</span></div>
+        <input type="range" class="rp-slider" id="gridSzSlider" min="5" max="80" value="20" step="5">
+      </div>
+    </div>
+
+    <!-- Gezinti -->
+    <div class="rp-sec">
       <div class="rp-nav">
         <button id="btnPrev">‹ Önceki</button>
         <button id="btnNext">Sonraki ›</button>
       </div>
     </div>
+
     <div class="hint-box" id="toolHint">Araç ipucu burada görünür.</div>
     <div class="page-info" id="pageInfo">—</div>
   </div>
@@ -207,14 +279,20 @@ let pdfTextItems = [];
 
 // Hover / selection state per tool
 let selHovPdf   = null;   // select tool: hovered PDF text item
+let selHovUser  = -1;     // select tool: hovered user annotation index (texts,clones,whites)
 let textHovPdf  = null;   // text tool: hovered PDF text item
 let textHovUser = -1;     // text tool: hovered user text index
+
+// Select-tool drag (move annotations)
+// { type:'text'|'whiteRect'|'clone'|'stroke', idx, offX, offY, moved:bool }
+let selDrag = null;
 
 // Active lasso selection (not yet cut)
 let lassoSel = null;      // { pts: [{x,y}] }
 
 // Clone tool state
-// { phase: 'selecting' | 'placing', drag: {sx,sy,ex,ey}?, src: {rx,ry,rw,rh,url}? }
+// phase:'selecting' = Alt+drag in progress  (drag:{sx,sy,ex,ey})
+// phase:'placing'   = source captured, waiting for click to paste (src:{rx,ry,rw,rh,url}, cursor:{cx,cy})
 let cloneState = null;
 
 // Text panel state
@@ -229,6 +307,9 @@ let woDrag  = null; // whiteout drag start {rx,ry}
 // Reference canvas size
 let refW = 1, refH = 1;
 
+// Grid state
+let gridActive = false, gridSize = 20;
+
 // Undo / redo
 const undoStack = [], redoStack = [];
 
@@ -241,6 +322,7 @@ const imgCache = new Map();
 const fileInput  = document.getElementById('fileInput');
 const mergeInput = document.getElementById('mergeInput');
 const PC         = document.getElementById('PC');   // pdf canvas
+const GC         = document.getElementById('GC');   // grid canvas
 const AC         = document.getElementById('AC');   // annot canvas
 const pageWrap   = document.getElementById('pageWrap');
 const emptyView  = document.getElementById('emptyView');
@@ -251,17 +333,20 @@ const viewArea   = document.getElementById('viewArea');
 const cloneHint  = document.getElementById('cloneHint');
 const textPanel  = document.getElementById('textPanel');
 const tpInput    = document.getElementById('tpInput');
+const tpColor    = document.getElementById('tpColor');
+const tpSize     = document.getElementById('tpSize');
 const pctx       = PC.getContext('2d');
+const gctx       = GC.getContext('2d');
 const actx       = AC.getContext('2d');
 
 const HINTS = {
-  select:    'Seç: PDF metninin üzerine gel (mavi kutu) → tıkla beyazlat.',
-  text:      'Metin: mavi=PDF metni, turuncu=eklediğin metin. Tıkla düzenle/sil. Boşluğa tıkla yeni metin ekle.',
+  select:    'Seç: PDF metni üzerine gel → tıkla beyazlat. Eklediğin öğeleri sürükle taşı.',
+  text:      'Metin: mavi=PDF metni, turuncu=eklediğin metin. Tıkla düzenle/sil. Boşluğa tıkla yeni metin.',
   pen:       'Kalem: serbest çizim yap.',
   highlight: 'Vurgula: renkli çizgi çek.',
   whiteout:  'Beyazlat: dikdörtgen sürükle, bırak.',
   lasso:     'Kement: serbest alan çiz. Ctrl+X ile kes (beyazlat). Esc ile iptal.',
-  clone:     'Klonla: 1) Sürükle = kaynak seç  2) Tıkla = klon yapıştır  Esc = iptal.',
+  clone:     'Klonla: Alt+Sürükle = kaynak alanı seç → tıkla = klon yapıştır. Esc = iptal.',
   eraser:    'Silgi: eklenen çizimlerin üzerinden geç.',
 };
 
@@ -293,6 +378,7 @@ function hexToRgb(hex) {
 function sanitize(s) { return s.replace(/[^\x20-\x7E\xA0-\xFF]/g, '?'); }
 function toRef(cx, cy)    { return { x: cx/zoom, y: cy/zoom }; }
 function toCanvas(rx, ry) { return { x: rx*zoom, y: ry*zoom }; }
+function snap(v) { return gridActive ? Math.round(v / gridSize) * gridSize : v; }
 
 function getPos(e) {
   const r = AC.getBoundingClientRect();
@@ -375,7 +461,24 @@ function getCachedImg(url) {
   return imgCache.get(url);
 }
 
-function redrawAnnotLayer() {
+// Draw grid on GC canvas
+function drawGrid() {
+  gctx.clearRect(0, 0, GC.width, GC.height);
+  if (!gridActive) return;
+  const g = gridSize * zoom;
+  gctx.save();
+  gctx.strokeStyle = 'rgba(100,160,255,0.18)';
+  gctx.lineWidth   = 0.5;
+  for (let x = 0; x < GC.width; x += g) {
+    gctx.beginPath(); gctx.moveTo(x, 0); gctx.lineTo(x, GC.height); gctx.stroke();
+  }
+  for (let y = 0; y < GC.height; y += g) {
+    gctx.beginPath(); gctx.moveTo(0, y); gctx.lineTo(GC.width, y); gctx.stroke();
+  }
+  gctx.restore();
+}
+
+function redrawAnnotLayer(overlay = true) {
   actx.clearRect(0, 0, AC.width, AC.height);
   const layer = getLayer(curPage);
 
@@ -430,8 +533,9 @@ function redrawAnnotLayer() {
   });
 
   // ── Tool overlays ──────────────────────────────────────────────────────────
+  if (!overlay) return;
 
-  // Select tool: PDF text boxes
+  // Select tool: PDF text boxes + user annotation boxes (draggable)
   if (tool === 'select') {
     pdfTextItems.forEach(ti => {
       const hov = ti === selHovPdf;
@@ -441,6 +545,27 @@ function redrawAnnotLayer() {
       actx.lineWidth   = hov ? 1.5 : 0.7;
       actx.fillRect  (ti.rx*zoom, ti.ry*zoom, ti.rw*zoom, ti.rh*zoom);
       actx.strokeRect(ti.rx*zoom, ti.ry*zoom, ti.rw*zoom, ti.rh*zoom);
+      actx.restore();
+    });
+    // User texts — orange, draggable
+    layer.texts.forEach((t, i) => {
+      const bb  = userTextBB(t);
+      const hov = i === selHovUser;
+      actx.save();
+      actx.fillStyle   = hov ? 'rgba(255,111,0,.15)' : 'rgba(255,111,0,.04)';
+      actx.strokeStyle = hov ? '#FF6F00' : 'rgba(255,111,0,.3)';
+      actx.lineWidth   = hov ? 1.5 : 0.7;
+      actx.fillRect  (bb.rx*zoom, bb.ry*zoom, bb.rw*zoom, bb.rh*zoom);
+      actx.strokeRect(bb.rx*zoom, bb.ry*zoom, bb.rw*zoom, bb.rh*zoom);
+      actx.restore();
+    });
+    // Clones — teal, draggable
+    layer.clones.forEach((cl, i) => {
+      const hov = selHovUser >= 10000 && (selHovUser - 10000) === i;
+      actx.save();
+      actx.strokeStyle = hov ? '#26c6da' : 'rgba(38,198,218,.3)';
+      actx.lineWidth   = hov ? 1.5 : 0.7;
+      actx.strokeRect(cl.dx*zoom, cl.dy*zoom, cl.rw*zoom, cl.rh*zoom);
       actx.restore();
     });
   }
@@ -487,29 +612,29 @@ function redrawAnnotLayer() {
     actx.restore();
   }
 
-  // Clone: source selection rect
-  if (tool === 'clone' && cloneState) {
-    if (cloneState.phase === 'selecting' && cloneState.drag) {
-      const { sx, sy, ex, ey } = cloneState.drag;
-      const rx = Math.min(sx, ex)*zoom, ry = Math.min(sy, ey)*zoom;
-      const rw = Math.abs(ex-sx)*zoom,  rh = Math.abs(ey-sy)*zoom;
+  // Clone: Alt+drag seçim rect — minimal, altın sarısı çerçeve
+  if (tool === 'clone' && cloneState?.phase === 'selecting' && cloneState.drag) {
+    const { sx, sy, ex, ey } = cloneState.drag;
+    const rx = Math.min(sx, ex)*zoom, ry = Math.min(sy, ey)*zoom;
+    const rw = Math.abs(ex-sx)*zoom,  rh = Math.abs(ey-sy)*zoom;
+    actx.save();
+    actx.fillStyle   = 'rgba(255,220,0,.08)';
+    actx.strokeStyle = 'rgba(220,180,0,.7)';
+    actx.lineWidth   = 1;
+    actx.fillRect(rx, ry, rw, rh);
+    actx.strokeRect(rx, ry, rw, rh);
+    actx.restore();
+  }
+  // Clone: yerleştirme önizlemesi — sadece yarı saydam görüntü, çerçeve yok
+  if (tool === 'clone' && cloneState?.phase === 'placing' && cloneState.cursor) {
+    const { cx, cy } = cloneState.cursor;
+    const { rw, rh, url } = cloneState.src;
+    const img = getCachedImg(url);
+    if (img.complete && img.naturalWidth > 0) {
+      const sx2 = snap(cx), sy2 = snap(cy);
       actx.save();
-      actx.strokeStyle = '#42a5f5'; actx.lineWidth = 1.5;
-      actx.fillStyle   = 'rgba(66,165,245,.1)';
-      actx.setLineDash([5,4]);
-      actx.fillRect(rx, ry, rw, rh);
-      actx.strokeRect(rx, ry, rw, rh);
-      actx.setLineDash([]);
-      actx.restore();
-    }
-    if (cloneState.phase === 'placing' && cloneState.cursor) {
-      const { cx, cy } = cloneState.cursor;
-      const { rw, rh } = cloneState.src;
-      const img = getCachedImg(cloneState.src.url);
-      actx.save();
-      actx.globalAlpha = 0.5;
-      if (img.complete && img.naturalWidth > 0)
-        actx.drawImage(img, cx*zoom, cy*zoom, rw*zoom, rh*zoom);
+      actx.globalAlpha = 0.55;
+      actx.drawImage(img, sx2*zoom, sy2*zoom, rw*zoom, rh*zoom);
       actx.restore();
     }
   }
@@ -550,10 +675,11 @@ async function renderPage() {
   const vp1    = jsPage.getViewport({ scale: 1.0 });
   refW = vp1.width; refH = vp1.height;
 
-  PC.width = AC.width  = vp.width;
-  PC.height = AC.height = vp.height;
+  PC.width = AC.width = GC.width  = vp.width;
+  PC.height = AC.height = GC.height = vp.height;
 
   await jsPage.render({ canvasContext: pctx, viewport: vp }).promise;
+  drawGrid();
 
   if (tool === 'select' || tool === 'text') await extractTextItems();
   redrawAnnotLayer();
@@ -715,16 +841,15 @@ document.getElementById('btnDelPage').addEventListener('click', async () => {
 // ══════════════════════════════════════════════════════════════════════════════
 // TEXT EDIT PANEL
 // ══════════════════════════════════════════════════════════════════════════════
-function showTextPanel(canvasLeft, canvasTop, initialText, canDelete) {
-  tpInput.value = initialText;
+function showTextPanel(canvasLeft, canvasTop, initialText, canDelete, fontSize, fontColor) {
+  tpInput.value    = initialText;
+  tpColor.value    = fontColor || drawColor;
+  tpSize.value     = fontSize  || Math.round(drawSize * 3) || 12;
   document.getElementById('tpDel').style.display = canDelete ? '' : 'none';
 
-  // Position panel within pageWrap (relative)
-  let left = canvasLeft, top = canvasTop + 4;
-  // Clamp so it doesn't go outside pageWrap
   const pw = pageWrap.clientWidth, ph = pageWrap.clientHeight;
-  left = Math.max(2, Math.min(left, pw - 240));
-  top  = Math.max(2, Math.min(top,  ph - 90));
+  let left = Math.max(2, Math.min(canvasLeft, pw - 245));
+  let top  = Math.max(2, Math.min(canvasTop + 4, ph - 110));
   textPanel.style.left    = left + 'px';
   textPanel.style.top     = top  + 'px';
   textPanel.style.display = '';
@@ -741,24 +866,26 @@ function commitTextPanel() {
   if (!textPanelTarget) return;
   const { type, ref, pdfItem, userIdx } = textPanelTarget;
 
+  const pColor = tpColor.value;
+  const pSize  = Math.max(4, Math.min(200, parseInt(tpSize.value) || 12));
+
   if (type === 'new') {
     if (!txt) { hideTextPanel(); return; }
     snapshot();
     getLayer(curPage).texts.push({
-      text: txt, x: ref.x, y: ref.y,
-      color: drawColor, size: drawSize*3, opacity: drawOpacity
+      text: txt, x: snap(ref.x), y: snap(ref.y),
+      color: pColor, size: pSize, opacity: drawOpacity
     });
   } else if (type === 'userText') {
     if (!txt) {
-      // empty → delete
       snapshot();
       getLayer(curPage).texts.splice(userIdx, 1);
     } else {
       snapshot();
-      getLayer(curPage).texts[userIdx].text = txt;
+      const t = getLayer(curPage).texts[userIdx];
+      t.text = txt; t.color = pColor; t.size = pSize;
     }
   } else if (type === 'pdfText') {
-    // whiteout original + optional new text
     snapshot();
     const layer = getLayer(curPage);
     layer.whiteRects.push({
@@ -768,7 +895,7 @@ function commitTextPanel() {
     if (txt) {
       layer.texts.push({
         text: txt, x: pdfItem.rx, y: pdfItem.ry + pdfItem.rh - 2,
-        color: drawColor, size: drawSize*3, opacity: drawOpacity
+        color: pColor, size: pSize, opacity: drawOpacity
       });
     }
   }
@@ -799,8 +926,10 @@ document.getElementById('tpX').addEventListener('click', hideTextPanel);
 tpInput.addEventListener('keydown', ev => {
   if (ev.key === 'Enter')  { ev.stopPropagation(); commitTextPanel(); }
   if (ev.key === 'Escape') { ev.stopPropagation(); hideTextPanel(); }
-  ev.stopPropagation(); // don't let arrow keys navigate pages
+  ev.stopPropagation();
 });
+tpSize.addEventListener('keydown', ev => ev.stopPropagation());
+tpColor.addEventListener('keydown', ev => ev.stopPropagation());
 
 // ══════════════════════════════════════════════════════════════════════════════
 // LASSO SELECTION
@@ -824,11 +953,14 @@ function clearLassoSel() {
 function captureArea(rx, ry, rw, rh) {
   const sw = Math.round(rw * zoom), sh = Math.round(rh * zoom);
   if (sw < 2 || sh < 2) return null;
+  // Overlay'siz çiz (seçim kutusu, klonlama modu grafikleri olmadan)
+  redrawAnnotLayer(false);
   const cap = document.createElement('canvas');
   cap.width = sw; cap.height = sh;
   const cctx = cap.getContext('2d');
-  cctx.drawImage(PC,  rx*zoom, ry*zoom, rw*zoom, rh*zoom, 0, 0, sw, sh);
-  cctx.drawImage(AC,  rx*zoom, ry*zoom, rw*zoom, rh*zoom, 0, 0, sw, sh);
+  cctx.drawImage(PC, rx*zoom, ry*zoom, rw*zoom, rh*zoom, 0, 0, sw, sh);
+  cctx.drawImage(AC, rx*zoom, ry*zoom, rw*zoom, rh*zoom, 0, 0, sw, sh);
+  redrawAnnotLayer(true); // Overlay'leri geri getir
   return cap.toDataURL('image/png');
 }
 function cancelClone() {
@@ -850,17 +982,51 @@ AC.addEventListener('mousedown', e => {
 
   // ── Clone ─────────────────────────────────────────────────────────────────
   if (tool === 'clone') {
-    if (!cloneState || cloneState.phase === 'selecting') {
-      // Start drag select
+    if (e.altKey) {
+      // Alt + sürükle = kaynak alanı seç
       cloneState = { phase: 'selecting', drag: { sx: ref.x, sy: ref.y, ex: ref.x, ey: ref.y } };
       isDrawing = true;
+    } else if (cloneState?.phase === 'placing') {
+      // Normal tıklama = klon yapıştır (mouseup'ta işlenir)
     }
     return;
   }
 
   // ── Select ────────────────────────────────────────────────────────────────
   if (tool === 'select') {
-    if (selHovPdf) {
+    const layer = getLayer(curPage);
+    // Önce user annotation sürükleme kontrolü
+    let dragFound = false;
+    for (let i = layer.texts.length - 1; i >= 0; i--) {
+      const bb = userTextBB(layer.texts[i]);
+      if (ref.x >= bb.rx && ref.x <= bb.rx+bb.rw && ref.y >= bb.ry && ref.y <= bb.ry+bb.rh) {
+        snapshot();
+        selDrag = { type: 'text', idx: i, offX: ref.x - layer.texts[i].x, offY: ref.y - layer.texts[i].y, moved: false };
+        isDrawing = true; dragFound = true; break;
+      }
+    }
+    if (!dragFound) {
+      for (let i = layer.clones.length - 1; i >= 0; i--) {
+        const cl = layer.clones[i];
+        if (ref.x >= cl.dx && ref.x <= cl.dx+cl.rw && ref.y >= cl.dy && ref.y <= cl.dy+cl.rh) {
+          snapshot();
+          selDrag = { type: 'clone', idx: i, offX: ref.x - cl.dx, offY: ref.y - cl.dy, moved: false };
+          isDrawing = true; dragFound = true; break;
+        }
+      }
+    }
+    if (!dragFound) {
+      for (let i = layer.whiteRects.length - 1; i >= 0; i--) {
+        const r2 = layer.whiteRects[i];
+        if (ref.x >= r2.x && ref.x <= r2.x+r2.w && ref.y >= r2.y && ref.y <= r2.y+r2.h) {
+          snapshot();
+          selDrag = { type: 'whiteRect', idx: i, offX: ref.x - r2.x, offY: ref.y - r2.y, moved: false };
+          isDrawing = true; dragFound = true; break;
+        }
+      }
+    }
+    if (!dragFound && selHovPdf) {
+      // PDF metin → beyazlat
       snapshot();
       const ti = selHovPdf;
       getLayer(curPage).whiteRects.push({ x: ti.rx-1, y: ti.ry-1, w: ti.rw+2, h: ti.rh+4 });
@@ -878,13 +1044,14 @@ AC.addEventListener('mousedown', e => {
     if (textHovUser >= 0) {
       const t = getLayer(curPage).texts[textHovUser];
       textPanelTarget = { type: 'userText', userIdx: textHovUser };
-      showTextPanel(panelX, panelY, t.text, true);
+      showTextPanel(panelX, panelY, t.text, true, t.size, t.color);
     } else if (textHovPdf) {
+      const pdfFontSize = Math.round(textHovPdf.rh / 1.35);
       textPanelTarget = { type: 'pdfText', pdfItem: textHovPdf };
-      showTextPanel(panelX, panelY, textHovPdf.str, true);
+      showTextPanel(panelX, panelY, textHovPdf.str, true, pdfFontSize, '#000000');
     } else {
       textPanelTarget = { type: 'new', ref };
-      showTextPanel(panelX, panelY, '', false);
+      showTextPanel(panelX, panelY, '', false, Math.round(drawSize * 3), drawColor);
     }
     return;
   }
@@ -920,25 +1087,56 @@ AC.addEventListener('mousemove', e => {
 
   // ── Clone cursor tracking ─────────────────────────────────────────────────
   if (tool === 'clone') {
-    if (cloneState && cloneState.phase === 'selecting' && isDrawing) {
+    if (cloneState?.phase === 'selecting' && isDrawing) {
       cloneState.drag.ex = ref.x; cloneState.drag.ey = ref.y;
       redrawAnnotLayer(); return;
     }
-    if (cloneState && cloneState.phase === 'placing') {
+    if (cloneState?.phase === 'placing') {
       cloneState.cursor = { cx: ref.x, cy: ref.y };
       redrawAnnotLayer(); return;
     }
+    AC.style.cursor = cloneState?.phase === 'placing' ? 'copy' : 'crosshair';
     return;
   }
 
-  // ── Select hover ──────────────────────────────────────────────────────────
+  // ── Select: drag annotation or update hover ───────────────────────────────
   if (tool === 'select') {
-    const prev = selHovPdf;
-    selHovPdf = pdfTextItems.find(ti =>
-      ref.x >= ti.rx && ref.x <= ti.rx+ti.rw &&
-      ref.y >= ti.ry && ref.y <= ti.ry+ti.rh) || null;
-    AC.style.cursor = selHovPdf ? 'pointer' : 'default';
-    if (selHovPdf !== prev) redrawAnnotLayer();
+    if (isDrawing && selDrag) {
+      const layer = getLayer(curPage);
+      const sx = snap(ref.x - selDrag.offX), sy = snap(ref.y - selDrag.offY);
+      if (selDrag.type === 'text') {
+        layer.texts[selDrag.idx].x = sx; layer.texts[selDrag.idx].y = sy;
+      } else if (selDrag.type === 'clone') {
+        layer.clones[selDrag.idx].dx = sx; layer.clones[selDrag.idx].dy = sy;
+      } else if (selDrag.type === 'whiteRect') {
+        layer.whiteRects[selDrag.idx].x = sx; layer.whiteRects[selDrag.idx].y = sy;
+      }
+      selDrag.moved = true;
+      AC.style.cursor = 'grabbing';
+      redrawAnnotLayer(); return;
+    }
+    // Hover detection
+    const layer = getLayer(curPage);
+    const prevP = selHovPdf, prevU = selHovUser;
+    selHovUser = -1;
+    for (let i = layer.texts.length - 1; i >= 0; i--) {
+      const bb = userTextBB(layer.texts[i]);
+      if (ref.x >= bb.rx && ref.x <= bb.rx+bb.rw && ref.y >= bb.ry && ref.y <= bb.ry+bb.rh) {
+        selHovUser = i; break;
+      }
+    }
+    if (selHovUser < 0) {
+      for (let i = layer.clones.length - 1; i >= 0; i--) {
+        const cl = layer.clones[i];
+        if (ref.x >= cl.dx && ref.x <= cl.dx+cl.rw && ref.y >= cl.dy && ref.y <= cl.dy+cl.rh) {
+          selHovUser = 10000 + i; break;
+        }
+      }
+    }
+    selHovPdf = selHovUser >= 0 ? null :
+      (pdfTextItems.find(ti => ref.x >= ti.rx && ref.x <= ti.rx+ti.rw && ref.y >= ti.ry && ref.y <= ti.ry+ti.rh) || null);
+    AC.style.cursor = selHovUser >= 0 ? 'grab' : (selHovPdf ? 'pointer' : 'default');
+    if (selHovPdf !== prevP || selHovUser !== prevU) redrawAnnotLayer();
     return;
   }
 
@@ -1012,33 +1210,33 @@ function finishDraw(e, leave = false) {
   const pos = leave ? null : getPos(e);
   const ref = pos ? toRef(pos.x, pos.y) : null;
 
-  // ── Clone: finish selecting ───────────────────────────────────────────────
-  if (tool === 'clone' && cloneState && cloneState.phase === 'selecting' && isDrawing) {
+  // ── Clone: Alt+sürükle bitti → yakala ───────────────────────────────────
+  if (tool === 'clone' && cloneState?.phase === 'selecting' && isDrawing) {
     isDrawing = false;
     const { sx, sy, ex, ey } = cloneState.drag;
     const rw = Math.abs(ex-sx), rh = Math.abs(ey-sy);
-    if (rw < 5 || rh < 5) {
-      // tiny drag → treat as place click if we're in placing mode, else cancel
-      if (ref && cloneState._placing) {
-        // place clone
-        const src = cloneState.src;
-        snapshot();
-        const cl = { dx: ref.x, dy: ref.y, rw: src.rw, rh: src.rh, url: src.url };
-        getLayer(curPage).clones.push(cl);
-        redrawAnnotLayer();
-        return;
-      }
-      cancelClone(); return;
-    }
+    if (rw < 5 || rh < 5) { cancelClone(); return; }
     const rx = Math.min(sx, ex), ry = Math.min(sy, ey);
     const url = captureArea(rx, ry, rw, rh);
     if (!url) { cancelClone(); return; }
     cloneState = { phase: 'placing', src: { rx, ry, rw, rh, url } };
-    cloneHint.textContent = 'Klonlamak için sayfaya tıklayın (Esc = iptal)';
+    cloneHint.textContent = 'Tıkla = klon yapıştır  |  Esc = iptal';
     cloneHint.style.display = '';
     AC.style.cursor = 'copy';
     redrawAnnotLayer();
     return;
+  }
+
+  // ── Select: drag bitti ───────────────────────────────────────────────────
+  if (tool === 'select' && isDrawing && selDrag) {
+    isDrawing = false;
+    if (!selDrag.moved) {
+      // Hareket etmedi → undo snapshot'ı iptal et (geri yükle)
+      restoreLayers(undoStack.pop()); updateUndoBtns();
+    }
+    selDrag = null;
+    AC.style.cursor = 'default';
+    redrawAnnotLayer(); return;
   }
 
   if (!isDrawing) return;
@@ -1077,16 +1275,18 @@ function finishDraw(e, leave = false) {
   woDrag = null; penPts = [];
 }
 
-// Clone: clicking in placing phase
+// Clone: tıkla → yapıştır (placing fazında, Alt olmadan)
 AC.addEventListener('click', e => {
-  if (tool !== 'clone' || !cloneState || cloneState.phase !== 'placing') return;
+  if (tool !== 'clone' || !cloneState || cloneState.phase !== 'placing' || e.altKey) return;
   const pos = getPos(e);
   const ref = toRef(pos.x, pos.y);
   const src = cloneState.src;
   snapshot();
-  getLayer(curPage).clones.push({ dx: ref.x, dy: ref.y, rw: src.rw, rh: src.rh, url: src.url });
+  getLayer(curPage).clones.push({
+    dx: snap(ref.x), dy: snap(ref.y), rw: src.rw, rh: src.rh, url: src.url
+  });
   redrawAnnotLayer();
-  toast('Klon yapıştırıldı (tekrar tıkla = bir tane daha)');
+  toast('Klon yapıştırıldı — tekrar tıkla: bir tane daha, Esc: iptal');
 });
 
 function eraseAt(ref) {
@@ -1118,7 +1318,8 @@ document.querySelectorAll('.tb.tool').forEach(btn => {
     AC.style.cursor = CURSORS[tool] || 'default';
     toolHint.textContent = HINTS[tool] || '';
     // Reset ephemeral state
-    selHovPdf = null; textHovPdf = null; textHovUser = -1;
+    selHovPdf = null; selHovUser = -1; selDrag = null;
+    textHovPdf = null; textHovUser = -1;
     lassoSel = null; isDrawing = false; penPts = []; woDrag = null;
     if (cloneState) cancelClone();
     hideTextPanel();
@@ -1128,22 +1329,69 @@ document.querySelectorAll('.tb.tool').forEach(btn => {
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
-// DRAW SETTINGS
+// DRAW SETTINGS — sağ panel
 // ══════════════════════════════════════════════════════════════════════════════
-document.getElementById('dColor').addEventListener('input', e => { drawColor = e.target.value; });
-document.getElementById('dSize').addEventListener('input', e => {
-  drawSize = +e.target.value; document.getElementById('dSizeN').value = drawSize;
+
+// Renk swatches
+const PRESET_COLORS = [
+  '#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#d9d9d9','#ffffff',
+  '#ff0000','#ff6600','#ffcc00','#00cc44','#0066ff','#6600cc','#cc0066','#00cccc'
+];
+const swatchesEl = document.getElementById('swatches');
+PRESET_COLORS.forEach(c => {
+  const d = document.createElement('div');
+  d.className = 'sw'; d.style.background = c; d.dataset.color = c;
+  d.title = c;
+  if (c === '#e53935') d.classList.add('active');
+  d.addEventListener('click', () => {
+    document.querySelectorAll('.sw').forEach(s => s.classList.remove('active'));
+    d.classList.add('active');
+    drawColor = c;
+    document.getElementById('dColor').value = c;
+  });
+  swatchesEl.appendChild(d);
 });
-document.getElementById('dSizeN').addEventListener('input', e => {
-  drawSize = Math.max(1, Math.min(40, +e.target.value));
+
+function setDrawColor(c) {
+  drawColor = c;
+  document.getElementById('dColor').value = c;
+  document.querySelectorAll('.sw').forEach(s =>
+    s.classList.toggle('active', s.dataset.color === c));
+}
+document.getElementById('dColor').addEventListener('input', e => setDrawColor(e.target.value));
+
+function setDrawSize(v) {
+  drawSize = Math.max(1, Math.min(60, v));
   document.getElementById('dSize').value = drawSize;
+  document.getElementById('dSizeVal').textContent = drawSize + 'px';
+  document.querySelectorAll('#sizePresets button').forEach(b =>
+    b.classList.toggle('active', +b.dataset.sz === drawSize));
+}
+document.getElementById('dSize').addEventListener('input', e => setDrawSize(+e.target.value));
+document.querySelectorAll('#sizePresets button').forEach(b =>
+  b.addEventListener('click', () => setDrawSize(+b.dataset.sz)));
+
+function setDrawOpa(v) {
+  drawOpacity = Math.max(0.1, Math.min(1, v / 100));
+  document.getElementById('dOpa').value = v;
+  document.getElementById('dOpaVal').textContent = v + '%';
+  document.querySelectorAll('#opaPresets button').forEach(b =>
+    b.classList.toggle('active', +b.dataset.opa === v));
+}
+document.getElementById('dOpa').addEventListener('input', e => setDrawOpa(+e.target.value));
+document.querySelectorAll('#opaPresets button').forEach(b =>
+  b.addEventListener('click', () => setDrawOpa(+b.dataset.opa)));
+
+// Izgara toggle
+document.getElementById('gridToggle').addEventListener('change', e => {
+  gridActive = e.target.checked;
+  document.getElementById('gridControls').style.display = gridActive ? '' : 'none';
+  if (pdfDoc) { drawGrid(); }
 });
-document.getElementById('dOpa').addEventListener('input', e => {
-  drawOpacity = +e.target.value / 100; document.getElementById('dOpaN').value = e.target.value;
-});
-document.getElementById('dOpaN').addEventListener('input', e => {
-  drawOpacity = Math.max(0.1, Math.min(1, +e.target.value / 100));
-  document.getElementById('dOpa').value = Math.round(drawOpacity * 100);
+document.getElementById('gridSzSlider').addEventListener('input', e => {
+  gridSize = +e.target.value;
+  document.getElementById('gridSzVal').textContent = gridSize + 'px';
+  if (pdfDoc && gridActive) drawGrid();
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
