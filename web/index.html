@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Düzenleyici</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; display: flex; flex-direction: column; height: 100vh; overflow: hidden; color: #212121; }
+
+  /* ── Header ── */
+  .header { background: #1565c0; color: #fff; padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.25); flex-shrink: 0; }
+  .header svg { flex-shrink: 0; }
+  .header h1 { font-size: 20px; font-weight: 600; letter-spacing: .3px; flex: 1; }
+  .btn-select { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.4); padding: 7px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 6px; transition: background .15s; }
+  .btn-select:hover { background: rgba(255,255,255,.25); }
+
+  /* ── Layout ── */
+  .body { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── Sidebar ── */
+  .sidebar { width: 250px; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-head { padding: 14px 16px 10px; border-bottom: 1px solid #e0e0e0; }
+  .sidebar-head h2 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #9e9e9e; margin-bottom: 8px; }
+  .btn-new-cat { width: 100%; padding: 7px; background: #1565c0; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background .15s; }
+  .btn-new-cat:hover { background: #0d47a1; }
+  .sidebar-list { flex: 1; overflow-y: auto; padding: 6px 0; }
+  .cat-item { display: flex; align-items: center; gap: 8px; padding: 9px 14px; cursor: pointer; border-left: 3px solid transparent; position: relative; user-select: none; }
+  .cat-item:hover { background: #f5f5f5; }
+  .cat-item.active { background: #e3f2fd; border-left-color: #1565c0; }
+  .cat-item.drag-over { background: #bbdefb !important; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .cat-name { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cat-count { font-size: 11px; background: #f0f0f0; color: #666; padding: 1px 7px; border-radius: 10px; flex-shrink: 0; }
+  .cat-btns { display: none; gap: 2px; }
+  .cat-item:hover .cat-btns { display: flex; }
+  .icon-btn { width: 26px; height: 26px; border: none; border-radius: 50%; cursor: pointer; background: transparent; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: background .15s; }
+  .icon-btn:hover { background: #e0e0e0; }
+  .sidebar-hint { padding: 8px 14px; font-size: 11px; color: #bdbdbd; text-align: center; border-top: 1px solid #f0f0f0; }
+
+  /* ── Content ── */
+  .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .toolbar { background: #fff; padding: 10px 18px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #e0e0e0; flex-shrink: 0; }
+  .search-wrap { flex: 1; position: relative; }
+  .search-wrap input { width: 100%; padding: 8px 14px 8px 36px; border: 1px solid #ddd; border-radius: 20px; font-size: 14px; outline: none; }
+  .search-wrap input:focus { border-color: #1565c0; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9e9e9e; font-size: 16px; pointer-events: none; }
+  .sort-sel { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; cursor: pointer; background: #fff; color: #333; }
+  .view-btns { display: flex; gap: 4px; }
+  .view-btn { padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; background: #fff; font-size: 16px; }
+  .view-btn.active { background: #e3f2fd; border-color: #1565c0; }
+
+  .info-bar { padding: 5px 18px; font-size: 12px; color: #9e9e9e; background: #fafafa; border-bottom: 1px solid #eee; flex-shrink: 0; }
+
+  /* ── PDF List ── */
+  .pdf-area { flex: 1; overflow-y: auto; padding: 12px 16px; }
+
+  /* List view */
+  .pdf-card { background: #fff; border-radius: 8px; padding: 11px 14px; margin-bottom: 7px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); cursor: default; transition: box-shadow .15s; border: 2px solid transparent; user-select: none; }
+  .pdf-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,.12); }
+  .pdf-card.dragging { opacity: .45; border-color: #1565c0; }
+  .pdf-icon-wrap { flex-shrink: 0; }
+  .pdf-info { flex: 1; min-width: 0; }
+  .pdf-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pdf-meta { font-size: 11px; color: #9e9e9e; margin-top: 2px; }
+  .pdf-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #fff; padding: 2px 8px; border-radius: 10px; margin-top: 4px; }
+  .pdf-actions { display: flex; gap: 5px; flex-shrink: 0; }
+  .act-btn { padding: 5px 11px; font-size: 12px; font-weight: 600; border: none; border-radius: 5px; cursor: pointer; transition: background .15s; }
+  .act-open { background: #1565c0; color: #fff; }
+  .act-open:hover { background: #0d47a1; }
+  .act-move { background: #f5f5f5; color: #333; }
+  .act-move:hover { background: #e0e0e0; }
+  .act-remove { background: #ffebee; color: #c62828; }
+  .act-remove:hover { background: #ffcdd2; }
+
+  /* Grid view */
+  .pdf-area.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .pdf-area.grid .pdf-card { flex-direction: column; align-items: flex-start; padding: 14px; }
+  .pdf-area.grid .pdf-info { width: 100%; }
+  .pdf-area.grid .pdf-actions { width: 100%; flex-wrap: wrap; margin-top: 8px; }
+  .pdf-area.grid .act-btn { flex: 1; text-align: center; }
+
+  /* ── Empty State ── */
+  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #bdbdbd; text-align: center; padding: 40px; gap: 12px; }
+  .empty .emoji { font-size: 72px; }
+  .empty h3 { font-size: 18px; color: #9e9e9e; }
+  .empty p { font-size: 14px; }
+
+  /* ── Context Menu ── */
+  .ctx-menu { position: fixed; background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,.18); padding: 6px 0; z-index: 900; min-width: 190px; font-size: 14px; }
+  .ctx-label { padding: 5px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #9e9e9e; }
+  .ctx-item { padding: 9px 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .ctx-item:hover { background: #f5f5f5; }
+  .ctx-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .ctx-divider { height: 1px; background: #f0f0f0; margin: 4px 0; }
+
+  /* ── Modal ── */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+  .modal { background: #fff; border-radius: 12px; padding: 24px; width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,.22); }
+  .modal h3 { font-size: 18px; margin-bottom: 16px; }
+  .modal label { font-size: 12px; font-weight: 600; color: #666; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+  .modal input[type=text] { width: 100%; padding: 10px 13px; border: 1px solid #ddd; border-radius: 7px; font-size: 14px; outline: none; margin-bottom: 18px; }
+  .modal input[type=text]:focus { border-color: #1565c0; }
+  .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .swatch { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: transform .15s, border-color .15s; }
+  .swatch.sel { border-color: #333; transform: scale(1.18); }
+  .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-cancel { padding: 9px 18px; border: none; border-radius: 7px; cursor: pointer; background: #f5f5f5; font-size: 14px; }
+  .btn-save { padding: 9px 18px; border: none; border-radius: 7px; cursor: pointer; background: #1565c0; color: #fff; font-size: 14px; font-weight: 600; }
+  .btn-cancel:hover { background: #e0e0e0; }
+  .btn-save:hover { background: #0d47a1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM11.5 9.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>
+  <h1>PDF Düzenleyici</h1>
+  <input type="file" id="fileInput" accept=".pdf" multiple style="display:none">
+  <input type="file" id="folderInput" webkitdirectory accept=".pdf" style="display:none">
+  <button class="btn-select" id="btnSelectFolder">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M10 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+    Klasör Seç
+  </button>
+  <button class="btn-select" id="btnSelectFiles">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"/></svg>
+    PDF Seç
+  </button>
+</div>
+
+<div class="body">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <h2>Kategoriler</h2>
+      <button class="btn-new-cat" id="btnNewCat">+ Yeni Kategori</button>
+    </div>
+    <div class="sidebar-list" id="sidebarList"></div>
+    <div class="sidebar-hint">PDF'i kategoriye sürükle &amp; bırak</div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="PDF ara…">
+      </div>
+      <select class="sort-sel" id="sortSel">
+        <option value="name-asc">İsim (A-Z)</option>
+        <option value="name-desc">İsim (Z-A)</option>
+        <option value="size-desc" selected>Boyut (Büyük)</option>
+        <option value="size-asc">Boyut (Küçük)</option>
+        <option value="date-desc">Tarih (Yeni)</option>
+        <option value="date-asc">Tarih (Eski)</option>
+      </select>
+      <div class="view-btns">
+        <button class="view-btn active" id="btnList" title="Liste">☰</button>
+        <button class="view-btn" id="btnGrid" title="Izgara">⊞</button>
+      </div>
+    </div>
+    <div class="info-bar" id="infoBar">Henüz dosya seçilmedi</div>
+    <div class="pdf-area" id="pdfArea"></div>
+  </div>
+</div>
+
+<!-- Category Modal -->
+<div class="overlay" id="catOverlay" style="display:none">
+  <div class="modal" id="catModal">
+    <h3 id="modalTitle">Yeni Kategori</h3>
+    <label>Kategori Adı</label>
+    <input type="text" id="catNameInput" placeholder="Örn: İş, Okul, Kişisel…" maxlength="40">
+    <label>Renk</label>
+    <div class="swatch-row" id="swatchRow"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="btnCancelCat">İptal</button>
+      <button class="btn-save" id="btnSaveCat">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// Config
+// ─────────────────────────────────────────────
+const PALETTE = ['#1565c0','#c62828','#2e7d32','#e65100','#6a1b9a','#00695c','#ad1457','#4527a0','#37474f'];
+
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+let pdfs = [];            // [{id, name, displayName, size, lastModified, path, url}]
+let activeCat = null;     // null=all, 'none'=uncategorized, 'uuid'=category
+let isGrid = false;
+let editCatId = null;
+let pickedColor = PALETTE[0];
+let ctxEl = null;
+
+function db() {
+  try { return JSON.parse(localStorage.getItem('pdforg') || '{}'); } catch { return {}; }
+}
+function dbSave(d) { localStorage.setItem('pdforg', JSON.stringify(d)); }
+function getCats()   { const d = db(); return Array.isArray(d.cats) ? d.cats : []; }
+function getAsgn()   { const d = db(); return d.asgn && typeof d.asgn === 'object' ? d.asgn : {}; }
+
+function saveCats(cats) { const d = db(); d.cats = cats; dbSave(d); }
+function setAsgn(id, catId) {
+  const d = db();
+  if (!d.asgn) d.asgn = {};
+  if (catId == null) delete d.asgn[id]; else d.asgn[id] = catId;
+  dbSave(d);
+}
+
+// ─────────────────────────────────────────────
+// File handling
+// ─────────────────────────────────────────────
+function processFiles(files) {
+  const pdfFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+  const existing = new Set(pdfs.map(p => p.path));
+  pdfFiles.forEach((f, i) => {
+    const path = f.webkitRelativePath || f.name;
+    if (existing.has(path)) return;
+    const url = URL.createObjectURL(f);
+    pdfs.push({
+      id: 'pdf_' + Date.now() + '_' + i,
+      name: f.name,
+      displayName: f.name.replace(/\.pdf$/i, ''),
+      size: f.size,
+      lastModified: f.lastModified,
+      path,
+      url
+    });
+  });
+  render();
+}
+
+document.getElementById('folderInput').addEventListener('change', e => processFiles(e.target.files));
+document.getElementById('fileInput').addEventListener('change',   e => processFiles(e.target.files));
+document.getElementById('btnSelectFolder').addEventListener('click', () => document.getElementById('folderInput').click());
+document.getElementById('btnSelectFiles').addEventListener('click',  () => document.getElementById('fileInput').click());
+
+// ─────────────────────────────────────────────
+// Filtering / sorting
+// ─────────────────────────────────────────────
+function getVisible() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const sort = document.getElementById('sortSel').value;
+  const asgn = getAsgn();
+
+  let list = pdfs.filter(p => !q || p.name.toLowerCase().includes(q));
+
+  if (activeCat === 'none') {
+    list = list.filter(p => !asgn[p.id]);
+  } else if (activeCat !== null) {
+    list = list.filter(p => asgn[p.id] === activeCat);
+  }
+
+  const [key, dir] = sort.split('-');
+  list.sort((a, b) => {
+    const av = key === 'name' ? a.displayName.toLowerCase() : key === 'size' ? a.size : a.lastModified;
+    const bv = key === 'name' ? b.displayName.toLowerCase() : key === 'size' ? b.size : b.lastModified;
+    return dir === 'asc' ? (av < bv ? -1 : av > bv ? 1 : 0) : (av < bv ? 1 : av > bv ? -1 : 0);
+  });
+  return list;
+}
+
+// ─────────────────────────────────────────────
+// Rendering
+// ─────────────────────────────────────────────
+function render() {
+  renderSidebar();
+  renderPdfs();
+}
+
+function renderSidebar() {
+  const cats = getCats();
+  const asgn = getAsgn();
+  const counts = {};
+  cats.forEach(c => counts[c.id] = 0);
+  Object.values(asgn).forEach(cid => { if (counts[cid] !== undefined) counts[cid]++; });
+  const uncatCount = pdfs.filter(p => !asgn[p.id]).length;
+
+  const rows = [
+    sidebarItem(null,   '#9e9e9e', '📋 Tüm PDF\'ler', pdfs.length),
+    sidebarItem('none', '#bdbdbd', '📄 Kategorisiz',  uncatCount),
+    ...cats.map(c => sidebarItemCat(c, counts[c.id] || 0))
+  ].join('');
+
+  document.getElementById('sidebarList').innerHTML = rows;
+
+  // Drag-over for categories
+  document.querySelectorAll('.cat-item[data-catid]').forEach(el => {
+    el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('drag-over'); });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop',      e => { e.preventDefault(); el.classList.remove('drag-over'); dropOnCat(el.dataset.catid); });
+  });
+}
+
+function sidebarItem(id, color, label, count) {
+  const active = activeCat === id ? 'active' : '';
+  return `<div class="cat-item ${active}" data-catid="${id === null ? '__all__' : id}">
+    <div class="dot" style="background:${color}"></div>
+    <span class="cat-name">${esc(label)}</span>
+    <span class="cat-count">${count}</span>
+  </div>`;
+}
+
+function sidebarItemCat(c, count) {
+  const active = activeCat === c.id ? 'active' : '';
+  return `<div class="cat-item ${active}" data-catid="${c.id}">
+    <div class="dot" style="background:${c.color}"></div>
+    <span class="cat-name">${esc(c.name)}</span>
+    <span class="cat-count">${count}</span>
+    <div class="cat-btns">
+      <button class="icon-btn" data-action="edit" data-catid="${c.id}" title="Düzenle">✏️</button>
+      <button class="icon-btn" data-action="del"  data-catid="${c.id}" title="Sil">🗑️</button>
+    </div>
+  </div>`;
+}
+
+function renderPdfs() {
+  const list = getVisible();
+  const asgn = getAsgn();
+  const catMap = {};
+  getCats().forEach(c => catMap[c.id] = c);
+
+  document.getElementById('infoBar').textContent =
+    pdfs.length === 0 ? 'Henüz dosya seçilmedi' : `${list.length} / ${pdfs.length} PDF gösteriliyor`;
+
+  const area = document.getElementById('pdfArea');
+  area.className = 'pdf-area' + (isGrid ? ' grid' : '');
+
+  if (list.length === 0) {
+    area.innerHTML = `<div class="empty">
+      <div class="emoji">${pdfs.length === 0 ? '📂' : '🔍'}</div>
+      <h3>${pdfs.length === 0 ? 'Dosya seçilmedi' : 'Sonuç bulunamadı'}</h3>
+      <p>${pdfs.length === 0 ? 'Üstten "Klasör Seç" veya "PDF Seç" ile dosyaları ekleyin.' : 'Farklı bir arama veya filtre deneyin.'}</p>
+    </div>`;
+    return;
+  }
+
+  area.innerHTML = list.map(p => {
+    const catId = asgn[p.id];
+    const cat = catId ? catMap[catId] : null;
+    const badge = cat
+      ? `<span class="pdf-badge" style="background:${cat.color}">📁 ${esc(cat.name)}</span>`
+      : '';
+    const removeBtn = catId
+      ? `<button class="act-btn act-remove" data-action="remove" data-pdfid="${p.id}">✕</button>`
+      : '';
+    return `<div class="pdf-card" draggable="true" data-pdfid="${p.id}">
+      <div class="pdf-icon-wrap">${pdfSvg()}</div>
+      <div class="pdf-info">
+        <div class="pdf-name" title="${esc(p.path)}">${esc(p.displayName)}</div>
+        <div class="pdf-meta">${fmtSize(p.size)} &bull; ${fmtDate(p.lastModified)} &bull; ${esc(p.path)}</div>
+        ${badge}
+      </div>
+      <div class="pdf-actions">
+        <button class="act-btn act-open" data-action="open" data-pdfid="${p.id}">Aç</button>
+        <button class="act-btn act-move" data-action="move" data-pdfid="${p.id}">📁 Taşı</button>
+        ${removeBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pdfSvg() {
+  return `<svg width="38" height="38" viewBox="0 0 38 38">
+    <rect x="3" y="1" width="24" height="32" rx="3" fill="#ef5350"/>
+    <path d="M22 1 L27 6 L22 6 Z" fill="#ffcdd2"/>
+    <rect x="3" y="17" width="32" height="13" rx="2" fill="white"/>
+    <text x="6" y="27" font-size="8" fill="#ef5350" font-weight="bold" font-family="Arial">PDF</text>
+  </svg>`;
+}
+
+// ─────────────────────────────────────────────
+// Event delegation – main area
+// ─────────────────────────────────────────────
+document.getElementById('pdfArea').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const id = btn.dataset.pdfid;
+  const action = btn.dataset.action;
+  if (action === 'open')   openPdf(id);
+  if (action === 'move')   showCtxMenu(e, id);
+  if (action === 'remove') { setAsgn(id, null); render(); }
+});
+
+document.getElementById('pdfArea').addEventListener('dragstart', e => {
+  const card = e.target.closest('.pdf-card');
+  if (!card) return;
+  card.classList.add('dragging');
+  e.dataTransfer.setData('pdfid', card.dataset.pdfid);
+  e.dataTransfer.effectAllowed = 'move';
+});
+document.getElementById('pdfArea').addEventListener('dragend', e => {
+  e.target.closest?.('.pdf-card')?.classList.remove('dragging');
+});
+
+// ─────────────────────────────────────────────
+// Event delegation – sidebar
+// ─────────────────────────────────────────────
+document.getElementById('sidebarList').addEventListener('click', e => {
+  const actionBtn = e.target.closest('[data-action]');
+  if (actionBtn) {
+    e.stopPropagation();
+    const catid = actionBtn.dataset.catid;
+    if (actionBtn.dataset.action === 'edit') openEditCat(catid);
+    if (actionBtn.dataset.action === 'del')  deleteCat(catid);
+    return;
+  }
+  const item = e.target.closest('.cat-item');
+  if (!item) return;
+  const raw = item.dataset.catid;
+  activeCat = raw === '__all__' ? null : raw;
+  render();
+});
+
+// ─────────────────────────────────────────────
+// Drag & drop onto category
+// ─────────────────────────────────────────────
+let draggingId = null;
+document.getElementById('pdfArea').addEventListener('dragstart', e => {
+  const card = e.target.closest('.pdf-card');
+  if (card) draggingId = card.dataset.pdfid;
+});
+function dropOnCat(catId) {
+  if (!draggingId) return;
+  setAsgn(draggingId, catId === '__all__' || catId === 'none' ? null : catId);
+  draggingId = null;
+  render();
+}
+
+// ─────────────────────────────────────────────
+// Context menu (move to category)
+// ─────────────────────────────────────────────
+function showCtxMenu(e, pdfId) {
+  closeCtx();
+  const cats = getCats();
+  const asgn = getAsgn();
+  const curCat = asgn[pdfId];
+
+  const menu = document.createElement('div');
+  menu.className = 'ctx-menu';
+  menu.innerHTML = `
+    <div class="ctx-label">Kategoriye Taşı</div>
+    <div class="ctx-item" data-cid="__remove">
+      <div class="ctx-dot" style="background:#bdbdbd"></div>Kategorisiz
+    </div>
+    <div class="ctx-divider"></div>
+    ${cats.map(c => `
+      <div class="ctx-item" data-cid="${c.id}">
+        <div class="ctx-dot" style="background:${c.color}"></div>${esc(c.name)}
+        ${curCat === c.id ? ' ✓' : ''}
+      </div>`).join('')}
+    ${cats.length === 0 ? '<div style="padding:8px 14px;color:#9e9e9e;font-size:13px">Henüz kategori yok</div>' : ''}
+  `;
+
+  const rect = e.target.getBoundingClientRect();
+  const left = Math.min(rect.left, window.innerWidth - 200);
+  const top  = Math.min(rect.bottom + 4, window.innerHeight - 60);
+  menu.style.left = left + 'px';
+  menu.style.top  = top + 'px';
+  document.body.appendChild(menu);
+  ctxEl = menu;
+
+  menu.addEventListener('click', ev => {
+    const item = ev.target.closest('[data-cid]');
+    if (!item) return;
+    const cid = item.dataset.cid;
+    setAsgn(pdfId, cid === '__remove' ? null : cid);
+    closeCtx();
+    render();
+  });
+
+  requestAnimationFrame(() => document.addEventListener('click', closeCtx, { once: true }));
+}
+function closeCtx() { ctxEl?.remove(); ctxEl = null; }
+
+// ─────────────────────────────────────────────
+// Open PDF
+// ─────────────────────────────────────────────
+function openPdf(id) {
+  const p = pdfs.find(x => x.id === id);
+  if (p?.url) window.open(p.url, '_blank');
+}
+
+// ─────────────────────────────────────────────
+// Category CRUD
+// ─────────────────────────────────────────────
+document.getElementById('btnNewCat').addEventListener('click', () => {
+  editCatId = null;
+  pickedColor = PALETTE[0];
+  document.getElementById('modalTitle').textContent = 'Yeni Kategori';
+  document.getElementById('catNameInput').value = '';
+  renderSwatches();
+  document.getElementById('catOverlay').style.display = 'flex';
+  document.getElementById('catNameInput').focus();
+});
+
+function openEditCat(id) {
+  const cat = getCats().find(c => c.id === id);
+  if (!cat) return;
+  editCatId = id;
+  pickedColor = cat.color;
+  document.getElementById('modalTitle').textContent = 'Kategoriyi Düzenle';
+  document.getElementById('catNameInput').value = cat.name;
+  renderSwatches();
+  document.getElementById('catOverlay').style.display = 'flex';
+  document.getElementById('catNameInput').focus();
+}
+
+function deleteCat(id) {
+  const cat = getCats().find(c => c.id === id);
+  if (!cat) return;
+  if (!confirm(`"${cat.name}" kategorisini silmek istediğinizden emin misiniz?\n(PDF'ler silinmez, sadece kategori ataması kaldırılır.)`)) return;
+  const cats = getCats().filter(c => c.id !== id);
+  saveCats(cats);
+  const d = db(); d.asgn = d.asgn || {};
+  Object.keys(d.asgn).forEach(pid => { if (d.asgn[pid] === id) delete d.asgn[pid]; });
+  dbSave(d);
+  if (activeCat === id) activeCat = null;
+  render();
+}
+
+document.getElementById('btnSaveCat').addEventListener('click', saveCat);
+document.getElementById('btnCancelCat').addEventListener('click', closeModal);
+document.getElementById('catOverlay').addEventListener('click', e => { if (e.target === document.getElementById('catOverlay')) closeModal(); });
+
+function saveCat() {
+  const name = document.getElementById('catNameInput').value.trim();
+  if (!name) { document.getElementById('catNameInput').focus(); return; }
+  const cats = getCats();
+  if (editCatId) {
+    const cat = cats.find(c => c.id === editCatId);
+    if (cat) { cat.name = name; cat.color = pickedColor; }
+  } else {
+    cats.push({ id: 'cat_' + Date.now(), name, color: pickedColor });
+  }
+  saveCats(cats);
+  closeModal();
+  render();
+}
+
+function closeModal() {
+  document.getElementById('catOverlay').style.display = 'none';
+  editCatId = null;
+}
+
+function renderSwatches() {
+  document.getElementById('swatchRow').innerHTML = PALETTE.map(c =>
+    `<div class="swatch ${c === pickedColor ? 'sel' : ''}" style="background:${c}" data-color="${c}"></div>`
+  ).join('');
+}
+
+document.getElementById('swatchRow').addEventListener('click', e => {
+  const s = e.target.closest('.swatch');
+  if (!s) return;
+  pickedColor = s.dataset.color;
+  renderSwatches();
+});
+
+// ─────────────────────────────────────────────
+// Toolbar controls
+// ─────────────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input', renderPdfs);
+document.getElementById('sortSel').addEventListener('change', renderPdfs);
+
+document.getElementById('btnList').addEventListener('click', () => {
+  isGrid = false;
+  document.getElementById('btnList').classList.add('active');
+  document.getElementById('btnGrid').classList.remove('active');
+  renderPdfs();
+});
+document.getElementById('btnGrid').addEventListener('click', () => {
+  isGrid = true;
+  document.getElementById('btnGrid').classList.add('active');
+  document.getElementById('btnList').classList.remove('active');
+  renderPdfs();
+});
+
+// ─────────────────────────────────────────────
+// Keyboard shortcuts
+// ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeCtx(); }
+  if (e.key === 'Enter' && document.getElementById('catOverlay').style.display !== 'none') saveCat();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+function fmtSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1024 * 1024) return (b / 1024).toFixed(0) + ' KB';
+  return (b / (1024 * 1024)).toFixed(1) + ' MB';
+}
+function fmtDate(ms) {
+  return new Date(ms).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
