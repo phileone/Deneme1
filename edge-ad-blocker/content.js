@@ -22,6 +22,10 @@
     'melbet','1xbet','betsson','bahiscom','betcio','anadolucasino',
     'betoffice','casinovale','betpublic','redwin','trbet','betturca',
     'bahistr','bahis siteleri',
+    'jetbahis','casinometropol','grandpashabet','vegaslot','piabet',
+    'turkbet','scorbet','hiltonbet','22bet','hovarda','intobet',
+    'jackburst','betroad','davegas','neataffiliates','facesbet','betlox',
+    'kingredirect','kingyonlendir','ukbet',
   ];
 
   // ── Genel reklam seçicileri ──────────────────────────────────────────────
