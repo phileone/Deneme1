@@ -6,6 +6,7 @@ const DEFAULT_SETTINGS = {
   blockTrackers: true,
   blockPopups: true,
   blockCookieNotices: false,
+  blockBetting: true,
   stats: { totalBlocked: 0, sessionsBlocked: 0 }
 };
 
@@ -193,8 +194,9 @@ async function updateDynamicRules(settings) {
     if (settings.enabled) {
       (settings.blockAds ? enable : disable).push('ad_rules');
       (settings.blockTrackers ? enable : disable).push('tracker_rules');
+      (settings.blockBetting !== false ? enable : disable).push('turkish_betting_rules');
     } else {
-      disable.push('ad_rules', 'tracker_rules');
+      disable.push('ad_rules', 'tracker_rules', 'turkish_betting_rules');
     }
     await chrome.declarativeNetRequest.updateEnabledRulesets({
       enableRulesetIds: enable,

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const blockTrackers   = document.getElementById('blockTrackers');
   const blockPopups     = document.getElementById('blockPopups');
   const blockCookieNotices = document.getElementById('blockCookieNotices');
+  const blockBetting       = document.getElementById('blockBetting');
   const blockedCount    = document.getElementById('blockedCount');
   const sessionCount    = document.getElementById('sessionCount');
   const resetStats      = document.getElementById('resetStats');
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     blockTrackers.checked       = s.blockTrackers;
     blockPopups.checked         = s.blockPopups;
     blockCookieNotices.checked  = s.blockCookieNotices;
+    blockBetting.checked        = s.blockBetting !== false;
     blockedCount.textContent    = formatNumber(s.stats?.totalBlocked || 0);
     sessionCount.textContent    = formatNumber(s.stats?.sessionsBlocked || 0);
     updateUIState(s.enabled);
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentSettings.blockTrackers       = blockTrackers.checked;
     currentSettings.blockPopups         = blockPopups.checked;
     currentSettings.blockCookieNotices  = blockCookieNotices.checked;
+    currentSettings.blockBetting        = blockBetting.checked;
     chrome.runtime.sendMessage({ action: 'updateSettings', settings: currentSettings });
     updateUIState(currentSettings.enabled);
   }
@@ -71,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
   blockTrackers.addEventListener('change', saveSettings);
   blockPopups.addEventListener('change', saveSettings);
   blockCookieNotices.addEventListener('change', saveSettings);
+  blockBetting.addEventListener('change', saveSettings);
 
   resetStats.addEventListener('click', () => {
     chrome.runtime.sendMessage({ action: 'resetStats' }, (res) => {

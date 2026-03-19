@@ -88,6 +88,13 @@ body {
 .mini-toggle input:disabled + .mini-slider { opacity: .4; cursor: not-allowed; }
 .filters-section.disabled { opacity: .4; pointer-events: none; }
 
+.filter-item--betting { border-top: 1px solid #2a1f1a !important; margin-top: 2px; padding-top: 9px !important; }
+.betting-badge { font-size: 9px; background: #3a1a0a; color: #f4a261; border: 1px solid #5a2a0a; border-radius: 4px; padding: 1px 5px; margin-right: 4px; vertical-align: middle; font-style: normal; }
+.mini-slider--red { background: #2a1a1a !important; border-color: #4a2a2a !important; }
+.mini-slider--red::before { background: #884444 !important; }
+.mini-toggle input:checked + .mini-slider--red { background: #e63946 !important; border-color: #e63946 !important; }
+.mini-toggle input:checked + .mini-slider--red::before { background: #fff !important; }
+
 /* ── Custom Selectors Section ───────────────────────────────────────── */
 .custom-section { background: #141420; border: 1px solid #2a2a40; border-radius: 10px; padding: 10px; }
 

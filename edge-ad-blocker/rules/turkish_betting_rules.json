@@ -1,0 +1,407 @@
+[
+  {
+    "id": 200, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*bets10*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 201, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*jojobet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 202, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*casibom*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 203, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*nakitbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 204, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*superbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 205, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*mobilbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 206, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*marsbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 207, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*tipobet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 208, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*tempobet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 209, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*pinbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 210, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*sultanbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 211, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*bahsegel*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 212, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betpark*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 213, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betist*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 214, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*mariobet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 215, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betgaranti*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 216, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betlike*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 217, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*vdcasino*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 218, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*queenbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 219, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*goldenbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 220, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*makrobet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 221, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*retrobet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 222, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*limanbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 223, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*atlantisbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 224, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*casinoper*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 225, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*hiperwin*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 226, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*cratosslot*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 227, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betturkey*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 228, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*kibrisbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 229, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*sahabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 230, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*fixbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 231, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*verabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 232, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*interbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 233, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*hipercasino*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 234, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*celtabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 235, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*milobet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 236, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*matbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 237, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betmatik*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 238, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*ngsbahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 239, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*rokubet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 240, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*casinolevant*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 241, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*baywin*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 242, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*onwin*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 243, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*holiganbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 244, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*asyabahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 245, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*galabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 246, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*gorabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 247, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*elexbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 248, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*padisahbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 249, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*imajbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 250, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betboo*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 251, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*discountcasino*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 252, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*casinomaxi*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 253, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*artemisbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 254, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*milanobet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 255, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betorder*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 256, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*rexbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 257, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betpas*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 258, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*bahigo*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 259, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betnano*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 260, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*youwin*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 261, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betandyou*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 262, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*parimatch*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 263, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betwinner*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 264, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*mostbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 265, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*melbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 266, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*1xbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 267, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*1x-bet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 268, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betsson*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 269, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*bahiscom*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 270, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*taraftarium*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media"] }
+  },
+  {
+    "id": 271, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betcio*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 272, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*anadolucasino*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 273, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betoffice*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 274, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*paribu*bahis*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media"] }
+  },
+  {
+    "id": 275, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*casinovale*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 276, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betpublic*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 277, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*redwin*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 278, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*trbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 279, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betturca*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 280, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*bahistr*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  }
+]

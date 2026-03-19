@@ -6,61 +6,58 @@
   if (window.__adBlockerLoaded) return;
   window.__adBlockerLoaded = true;
 
+  // ── Türk bahis siteleri marka listesi (DOM filtreleme için) ───────────────
+  const TR_BET_BRANDS = [
+    'bets10','jojobet','casibom','nakitbahis','superbahis','mobilbahis',
+    'marsbahis','tipobet','tempobet','pinbahis','sultanbet','bahsegel',
+    'betpark','betist','mariobet','betgaranti','betlike','vdcasino',
+    'queenbet','goldenbahis','makrobet','retrobet','limanbet','atlantisbahis',
+    'casinoper','hiperwin','cratosslot','betturkey','kibrisbet','sahabet',
+    'fixbet','verabet','interbahis','hipercasino','celtabet','milobet',
+    'matbet','betmatik','ngsbahis','rokubet','casinolevant','baywin',
+    'onwin','holiganbet','asyabahis','galabet','gorabet','elexbet',
+    'padisahbet','imajbet','betboo','discountcasino','casinomaxi',
+    'artemisbet','milanobet','betorder','rexbet','betpas','bahigo',
+    'betnano','youwin','betandyou','parimatch','betwinner','mostbet',
+    'melbet','1xbet','betsson','bahiscom','betcio','anadolucasino',
+    'betoffice','casinovale','betpublic','redwin','trbet','betturca',
+    'bahistr','bahis siteleri',
+  ];
+
   // ── Genel reklam seçicileri ──────────────────────────────────────────────
   const AD_SELECTORS = [
-    // Google Ads
     'ins.adsbygoogle', '[data-ad-client]', '[data-adunit]',
     '.GoogleActiveViewClass', '#google_ads_frame',
     'iframe[src*="googleads"]', 'iframe[src*="googlesyndication"]',
     'iframe[src*="doubleclick"]', 'iframe[src*="2mdn.net"]',
-
-    // Yaygın reklam sınıf/id kalıpları
     '[class*="ad-banner"]', '[class*="ad-container"]', '[class*="ad-wrapper"]',
     '[class*="ad-block"]', '[class*="adsbygoogle"]', '[class*="advertisement"]',
     '[class*="advertise"]', '[id*="ad-banner"]', '[id*="ad-container"]',
     '[id*="google-ad"]', '[id*="banner-ad"]',
-
-    // Taboola / Outbrain
     'div[id*="taboola"]', 'div[class*="taboola"]',
     'div[id*="outbrain"]', 'div[class*="outbrain"]',
     '.trc_rbox_container', '#taboola-below-article',
-
-    // Banner boyutları
     '.banner-ads', '.banner-advertisement', '.top-ads',
     '.sidebar-ad', '#sidebar-ad', '.leaderboard-ad', '.mrec-ad',
-
-    // Pop-up / overlay
     '.popup-ad', '.overlay-ad', '[class*="interstitial"]',
-
-    // Sponsorlu içerik
     '[data-sponsored]', '[aria-label*="Sponsored"]', '[aria-label*="Reklam"]',
     '.sponsored-content', '.native-ad',
-
-    // Video reklam wrapper'ları
     '.video-ad-container', '[class*="preroll"]',
     'iframe[src*="ads."]', 'iframe[src*="ad."]',
   ];
 
   // ── YouTube'a özgü seçiciler ─────────────────────────────────────────────
   const YOUTUBE_SELECTORS = [
-    '#masthead-ad',
-    '.ytd-display-ad-renderer',
-    'ytd-display-ad-renderer',
-    '.ytd-promoted-video-renderer',
-    'ytd-promoted-video-renderer',
-    'ytd-promoted-sparkles-web-renderer',
-    '.ytd-companion-slot-renderer',
-    'ytd-companion-slot-renderer',
-    'ytd-action-companion-ad-renderer',
-    '.ytp-ad-overlay-container',
-    '.ytp-ad-text-overlay',
-    '.ytp-ce-element',
-    '.ytp-suggested-action',
-    '#player-ads',
-    '.video-ads',
+    '#masthead-ad', '.ytd-display-ad-renderer', 'ytd-display-ad-renderer',
+    '.ytd-promoted-video-renderer', 'ytd-promoted-video-renderer',
+    'ytd-promoted-sparkles-web-renderer', '.ytd-companion-slot-renderer',
+    'ytd-companion-slot-renderer', 'ytd-action-companion-ad-renderer',
+    '.ytp-ad-overlay-container', '.ytp-ad-text-overlay', '.ytp-ce-element',
+    '.ytp-suggested-action', '#player-ads', '.video-ads',
+    'ytd-banner-promo-renderer', 'tp-yt-paper-dialog',
   ];
 
-  // ── İzleyici pixel seçicileri ────────────────────────────────────────────
+  // ── İzleyici seçicileri ──────────────────────────────────────────────────
   const TRACKER_SELECTORS = [
     'img[src*="track."]', 'img[src*="pixel."]',
     'img[width="1"][height="1"]', 'img[width="0"][height="0"]',
@@ -76,7 +73,10 @@
     '.sp_message_container',
   ];
 
-  let settings = { enabled: true, blockAds: true, blockTrackers: true, blockCookieNotices: false };
+  let settings = {
+    enabled: true, blockAds: true, blockTrackers: true,
+    blockCookieNotices: false, blockBetting: true,
+  };
   let customSelectors = [];
   let observer = null;
   let ytAdInterval = null;
@@ -95,6 +95,47 @@
     selectors.forEach(sel => {
       try { document.querySelectorAll(sel).forEach(hideElement); } catch (_) {}
     });
+  }
+
+  // ── Türk bahis içeriği DOM taraması ──────────────────────────────────────
+  function blockTurkishBettingContent() {
+    if (!settings.blockBetting) return;
+
+    // iframe src'den bahis siteleri
+    document.querySelectorAll('iframe[src]').forEach(el => {
+      const src = el.src.toLowerCase();
+      if (TR_BET_BRANDS.some(b => src.includes(b))) hideElement(el);
+    });
+
+    // img src'den bahis siteleri
+    document.querySelectorAll('img[src]').forEach(el => {
+      const src = el.src.toLowerCase();
+      if (TR_BET_BRANDS.some(b => src.includes(b))) hideElement(el.closest('a') || el);
+    });
+
+    // a href'ten bahis bağlantıları
+    document.querySelectorAll('a[href]').forEach(el => {
+      const href = el.href.toLowerCase();
+      if (TR_BET_BRANDS.some(b => href.includes(b))) {
+        hideElement(el.closest('div, article, aside, section, li') || el);
+      }
+    });
+
+    // Metin içeriğine göre - başlık, alt başlık ve butonlar
+    document.querySelectorAll('h1,h2,h3,h4,h5,span,button,div[class*="banner"],div[class*="promo"]').forEach(el => {
+      if (el.getAttribute('data-adblocker-hidden') || el.children.length > 5) return;
+      const text = el.textContent.toLowerCase();
+      const isBet = TR_BET_BRANDS.some(b => text.includes(b)) ||
+        /bahis|casino|kumar|bet bonus|free spin|para yatır|yatırım bonusu|hoşgeldin bonusu/.test(text);
+      if (isBet) hideElement(el.closest('[class*="ad"],[class*="banner"],[class*="promo"],[class*="sponsor"]') || el);
+    });
+
+    // class/id adında bahis markası geçenler
+    const brandSelectors = TR_BET_BRANDS.flatMap(b => [
+      `[class*="${b}"]`, `[id*="${b}"]`,
+      `iframe[src*="${b}"]`, `a[href*="${b}"]`,
+    ]);
+    applySelectors(brandSelectors);
   }
 
   // ── Boyuta göre iframe tespiti ────────────────────────────────────────────
@@ -119,26 +160,25 @@
   function handleYouTubeAds() {
     if (!isYouTube) return;
 
-    // Skip butonuna bas
     const skipBtn = document.querySelector(
-      '.ytp-skip-ad-button, .ytp-ad-skip-button, [class*="skip-ad"], .ytp-ad-skip-button-modern'
+      '.ytp-skip-ad-button, .ytp-ad-skip-button, .ytp-ad-skip-button-modern, [class*="skip-ad"]'
     );
     if (skipBtn) { skipBtn.click(); return; }
 
-    // Atlanamayan reklam varsa video süresini sona atla
-    const adBadge = document.querySelector('.ytp-ad-simple-ad-badge, .ytp-ad-duration-remaining');
+    // Atlanamayan reklamda videoyu sona atla
+    const adBadge = document.querySelector('.ytp-ad-simple-ad-badge, .ytp-ad-duration-remaining, .ytp-ad-player-overlay');
     if (adBadge) {
       const video = document.querySelector('video');
-      if (video && isFinite(video.duration)) {
+      if (video && isFinite(video.duration) && video.duration > 0) {
         video.currentTime = video.duration;
+        video.muted = false;
       }
     }
 
-    // Overlay / banner reklamları gizle
     applySelectors(YOUTUBE_SELECTORS);
   }
 
-  // ── Ana filtre fonksiyonu ─────────────────────────────────────────────────
+  // ── Ana filtre ────────────────────────────────────────────────────────────
   function applyFilters() {
     if (!settings.enabled) return;
     if (settings.blockAds) {
@@ -148,7 +188,24 @@
     }
     if (settings.blockTrackers) applySelectors(TRACKER_SELECTORS);
     if (settings.blockCookieNotices) applySelectors(COOKIE_SELECTORS);
+    if (settings.blockBetting) blockTurkishBettingContent();
     if (customSelectors.length) applySelectors(customSelectors.map(s => s.selector));
+  }
+
+  // ── CSS injection: betting brands için hızlı gizleme ─────────────────────
+  function injectBettingCSS() {
+    if (!settings.blockBetting) return;
+    if (document.getElementById('__adBlockerBettingCSS')) return;
+
+    const cssRules = TR_BET_BRANDS.flatMap(b => [
+      `[class*="${b}"]`, `[id*="${b}"]`,
+      `iframe[src*="${b}"]`, `a[href*="${b}"]`,
+    ]).join(',\n');
+
+    const style = document.createElement('style');
+    style.id = '__adBlockerBettingCSS';
+    style.textContent = `${cssRules} { display: none !important; visibility: hidden !important; }`;
+    (document.head || document.documentElement).appendChild(style);
   }
 
   // ── MutationObserver ──────────────────────────────────────────────────────
@@ -161,7 +218,6 @@
     observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 
-  // ── YouTube interval başlat/durdur ────────────────────────────────────────
   function startYtInterval() {
     if (!isYouTube || ytAdInterval) return;
     ytAdInterval = setInterval(handleYouTubeAds, 500);
@@ -171,12 +227,13 @@
     if (ytAdInterval) { clearInterval(ytAdInterval); ytAdInterval = null; }
   }
 
-  // ── Ayarları ve özel seçicileri yükle ────────────────────────────────────
+  // ── Yükleme ───────────────────────────────────────────────────────────────
   function loadAll() {
     chrome.runtime.sendMessage({ action: 'getSettings' }, (res) => {
       if (chrome.runtime.lastError) return;
       if (res?.settings) settings = res.settings;
       if (!settings.enabled) return;
+      injectBettingCSS();
       applyFilters();
       startObserver();
       startYtInterval();
@@ -188,7 +245,6 @@
     });
   }
 
-  // ── Mesaj dinleyici ───────────────────────────────────────────────────────
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.action === 'applyCustomSelector') {
       customSelectors = msg.selectors || [];
@@ -196,12 +252,17 @@
     }
   });
 
-  // ── Storage değişikliklerini dinle ────────────────────────────────────────
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.settings) {
+      const prev = settings;
       settings = changes.settings.newValue;
-      if (settings.enabled) { applyFilters(); startObserver(); startYtInterval(); }
-      else { if (observer) { observer.disconnect(); observer = null; } stopYtInterval(); }
+      if (settings.enabled) {
+        if (settings.blockBetting && !prev.blockBetting) injectBettingCSS();
+        applyFilters(); startObserver(); startYtInterval();
+      } else {
+        if (observer) { observer.disconnect(); observer = null; }
+        stopYtInterval();
+      }
     }
     if (changes.customSelectors) {
       customSelectors = changes.customSelectors.newValue || [];
@@ -209,6 +270,8 @@
     }
   });
 
+  // Sayfa yüklenirken çalıştır (document_start'ta başlıyoruz)
+  injectBettingCSS();
   document.addEventListener('DOMContentLoaded', applyFilters);
   window.addEventListener('load', applyFilters);
   loadAll();
