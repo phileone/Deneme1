@@ -14,7 +14,6 @@
         <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
           <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="18" y1="6" x2="6" y2="18" stroke="#E63946" stroke-width="2" stroke-linecap="round" class="shield-x" style="display:none"/>
         </svg>
         <span class="logo-text">Reklam Engelleyici</span>
       </div>
@@ -52,6 +51,15 @@
       </svg>
       <span>Reklam engelleyici devre dışı</span>
     </div>
+
+    <!-- Picker Button -->
+    <button class="picker-btn" id="pickerBtn" title="Sayfadan reklam seç ve engelle">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 3L10.5 21L13 13L21 10.5L3 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <line x1="13" y1="13" x2="20" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>Sayfadan Eleman Seç</span>
+    </button>
 
     <!-- Filter Options -->
     <div class="filters-section" id="filtersSection">
@@ -102,9 +110,29 @@
       </div>
     </div>
 
+    <!-- Custom Blocked Elements -->
+    <div class="custom-section" id="customSection">
+      <div class="custom-header">
+        <div class="section-title" style="margin-bottom:0">Manuel Engellenenler</div>
+        <span class="custom-count" id="customCount">0</span>
+        <button class="clear-all-btn" id="clearAllCustom" title="Tümünü temizle" style="display:none">
+          Tümünü Sil
+        </button>
+      </div>
+
+      <div class="custom-empty" id="customEmpty">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 3L10.5 21L13 13L21 10.5L3 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <span>Henüz manuel engel yok.<br>"Eleman Seç" ile reklam ekleyin.</span>
+      </div>
+
+      <ul class="custom-list" id="customList"></ul>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
-      <span class="version">v1.0.0</span>
+      <span class="version">v1.1.0</span>
       <span class="separator">•</span>
       <span class="status-text" id="statusText">Koruma aktif</span>
     </footer>

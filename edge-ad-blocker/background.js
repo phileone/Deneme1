@@ -6,28 +6,23 @@ const DEFAULT_SETTINGS = {
   blockTrackers: true,
   blockPopups: true,
   blockCookieNotices: false,
-  stats: {
-    totalBlocked: 0,
-    sessionsBlocked: 0
-  }
+  stats: { totalBlocked: 0, sessionsBlocked: 0 }
 };
 
-// Uzantı yüklendiğinde varsayılan ayarları başlat
+// ── Kurulum ───────────────────────────────────────────────────────────────
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
-    await chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
-    console.log('Reklam Engelleyici kuruldu!');
+    await chrome.storage.local.set({ settings: DEFAULT_SETTINGS, customSelectors: [] });
   } else if (details.reason === 'update') {
-    const existing = await chrome.storage.local.get('settings');
-    if (!existing.settings) {
-      await chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
-    }
+    const data = await chrome.storage.local.get(['settings', 'customSelectors']);
+    if (!data.settings) await chrome.storage.local.set({ settings: DEFAULT_SETTINGS });
+    if (!data.customSelectors) await chrome.storage.local.set({ customSelectors: [] });
   }
   updateDynamicRules();
 });
 
-// Engellenen istek sayısını takip et
-chrome.declarativeNetRequest.onRuleMatchedDebug?.addListener((info) => {
+// ── Engelleme sayacı ──────────────────────────────────────────────────────
+chrome.declarativeNetRequest.onRuleMatchedDebug?.addListener(() => {
   incrementBlockCount();
 });
 
@@ -37,38 +32,31 @@ async function incrementBlockCount() {
   settings.stats.totalBlocked = (settings.stats.totalBlocked || 0) + 1;
   settings.stats.sessionsBlocked = (settings.stats.sessionsBlocked || 0) + 1;
   await chrome.storage.local.set({ settings });
-
-  // Aktif sekmedeki badge'i güncelle
   updateBadge();
 }
 
 async function updateBadge() {
   const data = await chrome.storage.local.get('settings');
   const settings = data.settings || DEFAULT_SETTINGS;
-
   if (!settings.enabled) {
     chrome.action.setBadgeText({ text: 'OFF' });
     chrome.action.setBadgeBackgroundColor({ color: '#999999' });
     return;
   }
-
   const count = settings.stats.sessionsBlocked || 0;
   if (count > 0) {
-    const text = count > 999 ? '999+' : count.toString();
-    chrome.action.setBadgeText({ text });
+    chrome.action.setBadgeText({ text: count > 999 ? '999+' : count.toString() });
     chrome.action.setBadgeBackgroundColor({ color: '#E63946' });
   } else {
     chrome.action.setBadgeText({ text: '' });
   }
 }
 
-// Tab değiştiğinde sayacı sıfırla (opsiyonel: per-tab istatistik)
-chrome.tabs.onActivated.addListener(async () => {
-  await updateBadge();
-});
+chrome.tabs.onActivated.addListener(() => updateBadge());
 
-// Mesajları dinle (popup'tan gelen)
+// ── Mesaj dinleyicisi ─────────────────────────────────────────────────────
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+
   if (message.action === 'getSettings') {
     chrome.storage.local.get('settings').then(data => {
       sendResponse({ settings: data.settings || DEFAULT_SETTINGS });
@@ -85,13 +73,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  if (message.action === 'getTabStats') {
-    chrome.storage.local.get('settings').then(data => {
-      sendResponse({ stats: data.settings?.stats || { totalBlocked: 0 } });
-    });
-    return true;
-  }
-
   if (message.action === 'resetStats') {
     chrome.storage.local.get('settings').then(data => {
       const settings = data.settings || DEFAULT_SETTINGS;
@@ -103,67 +84,125 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
+
+  // ── Eleman Seçici: picker.js'i sekmeye enjekte et ────────────────────────
+  if (message.action === 'startPicker') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs[0]) { sendResponse({ success: false }); return; }
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        files: ['picker.js']
+      }).then(() => {
+        sendResponse({ success: true });
+      }).catch(err => {
+        console.error('Picker enjeksiyon hatası:', err);
+        sendResponse({ success: false, error: err.message });
+      });
+    });
+    return true;
+  }
+
+  // ── Seçilen eleman kaydedildi ─────────────────────────────────────────────
+  if (message.action === 'elementPicked') {
+    chrome.storage.local.get('customSelectors').then(data => {
+      const selectors = data.customSelectors || [];
+      const newEntry = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        selector: message.selector,
+        hostname: message.hostname || '*',
+        created: Date.now(),
+      };
+      selectors.unshift(newEntry);
+      chrome.storage.local.set({ customSelectors: selectors }).then(() => {
+        // Tüm sekmelerdeki content script'lere bildir
+        notifyAllTabs(selectors);
+        sendResponse({ success: true });
+      });
+    });
+    return true;
+  }
+
+  // ── Özel seçicileri getir ─────────────────────────────────────────────────
+  if (message.action === 'getCustomSelectors') {
+    chrome.storage.local.get('customSelectors').then(data => {
+      sendResponse({ selectors: data.customSelectors || [] });
+    });
+    return true;
+  }
+
+  // ── Özel seçici sil ───────────────────────────────────────────────────────
+  if (message.action === 'removeCustomSelector') {
+    chrome.storage.local.get('customSelectors').then(data => {
+      const selectors = (data.customSelectors || []).filter(s => s.id !== message.id);
+      chrome.storage.local.set({ customSelectors: selectors }).then(() => {
+        notifyAllTabs(selectors);
+        sendResponse({ success: true });
+      });
+    });
+    return true;
+  }
+
+  // ── Tüm özel seçicileri temizle ───────────────────────────────────────────
+  if (message.action === 'clearCustomSelectors') {
+    chrome.storage.local.set({ customSelectors: [] }).then(() => {
+      notifyAllTabs([]);
+      sendResponse({ success: true });
+    });
+    return true;
+  }
 });
 
+// Tüm sekmelere güncel seçici listesini gönder
+function notifyAllTabs(selectors) {
+  chrome.tabs.query({}, (tabs) => {
+    tabs.forEach(tab => {
+      chrome.tabs.sendMessage(tab.id, {
+        action: 'applyCustomSelector',
+        selectors,
+      }).catch(() => {}); // Sekme dinlemiyorsa yoksay
+    });
+  });
+}
+
+// ── Dinamik kuralları güncelle ────────────────────────────────────────────
 async function updateDynamicRules(settings) {
   if (!settings) {
     const data = await chrome.storage.local.get('settings');
     settings = data.settings || DEFAULT_SETTINGS;
   }
 
-  // Mevcut dinamik kuralları temizle
-  const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
-  const existingRuleIds = existingRules.map(r => r.id);
-
+  const existing = await chrome.declarativeNetRequest.getDynamicRules();
+  const existingIds = existing.map(r => r.id);
   const newRules = [];
 
-  // Popup engelleme kuralları
   if (settings.enabled && settings.blockPopups) {
     newRules.push({
-      id: 10001,
-      priority: 1,
+      id: 10001, priority: 1,
       action: { type: 'block' },
-      condition: {
-        urlFilter: '*popup*',
-        resourceTypes: ['sub_frame']
-      }
+      condition: { urlFilter: '*popup*', resourceTypes: ['sub_frame'] }
     });
   }
 
   await chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: existingRuleIds,
+    removeRuleIds: existingIds,
     addRules: newRules
   });
 
-  // Statik kural gruplarını etkinleştir/devre dışı bırak
   try {
-    const updates = [];
-
+    const enable = [], disable = [];
     if (settings.enabled) {
-      if (settings.blockAds) {
-        updates.push({ rulesetId: 'ad_rules', enabled: true });
-      } else {
-        updates.push({ rulesetId: 'ad_rules', enabled: false });
-      }
-
-      if (settings.blockTrackers) {
-        updates.push({ rulesetId: 'tracker_rules', enabled: true });
-      } else {
-        updates.push({ rulesetId: 'tracker_rules', enabled: false });
-      }
+      (settings.blockAds ? enable : disable).push('ad_rules');
+      (settings.blockTrackers ? enable : disable).push('tracker_rules');
     } else {
-      updates.push({ rulesetId: 'ad_rules', enabled: false });
-      updates.push({ rulesetId: 'tracker_rules', enabled: false });
+      disable.push('ad_rules', 'tracker_rules');
     }
-
     await chrome.declarativeNetRequest.updateEnabledRulesets({
-      enableRulesetIds: updates.filter(u => u.enabled).map(u => u.rulesetId),
-      disableRulesetIds: updates.filter(u => !u.enabled).map(u => u.rulesetId)
+      enableRulesetIds: enable,
+      disableRulesetIds: disable,
     });
   } catch (e) {
     console.error('Kural güncelleme hatası:', e);
   }
 }
 
-// Başlangıçta badge'i güncelle
 updateBadge();
