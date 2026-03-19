@@ -403,5 +403,147 @@
     "id": 280, "priority": 3,
     "action": { "type": "block" },
     "condition": { "urlFilter": "*bahistr*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+
+  {
+    "id": 281, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||betcdn.biz^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 282, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||betendads.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 283, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||perabetads.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 284, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||tempobanners.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 285, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||trbetmedia.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 286, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||betzeplinreklam.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 287, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||cpatrendreklam.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 288, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||betburdaaffiliates.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media"] }
+  },
+  {
+    "id": 289, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||rotabetaffiliates.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media"] }
+  },
+  {
+    "id": 290, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||betwinnerpromo.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media"] }
+  },
+  {
+    "id": 291, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||betexperaff.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media"] }
+  },
+  {
+    "id": 292, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||cmsbetconstruct.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 293, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||mobilbahis365.mobi^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 294, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||winaffiliates.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media"] }
+  },
+  {
+    "id": 295, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||adbetnet.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 296, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||adbetnetwork.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 297, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||adbetnet.advertserve.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media"] }
+  },
+  {
+    "id": 298, "priority": 4,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "||betkanyon100.com^", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+
+  {
+    "id": 299, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*vegabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 300, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*perabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 301, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*rotabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 302, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betburda*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 303, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*axbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 304, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*savoybetting*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 305, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betconstruct*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 306, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*betexper*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 307, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*ambelbet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
+  },
+  {
+    "id": 308, "priority": 3,
+    "action": { "type": "block" },
+    "condition": { "urlFilter": "*areabet*", "resourceTypes": ["script","sub_frame","xmlhttprequest","image","media","stylesheet"] }
   }
 ]
