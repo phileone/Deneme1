@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Edge Reklam Engelleyici",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Microsoft Edge için güçlü reklam engelleyici. Reklamları, izleyicileri ve zararlı içerikleri engeller.",
   "author": "Edge Ad Blocker",
   "icons": {
@@ -25,6 +25,13 @@
     "type": "module"
   },
   "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["scriptlet.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    },
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
