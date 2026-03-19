@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reklam Engelleyici</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="18" y1="6" x2="6" y2="18" stroke="#E63946" stroke-width="2" stroke-linecap="round" class="shield-x" style="display:none"/>
+        </svg>
+        <span class="logo-text">Reklam Engelleyici</span>
+      </div>
+      <label class="toggle-switch" title="Uzantıyı aç/kapat">
+        <input type="checkbox" id="masterToggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </header>
+
+    <!-- Stats Section -->
+    <div class="stats-card" id="statsCard">
+      <div class="stats-main">
+        <div class="stats-count" id="blockedCount">0</div>
+        <div class="stats-label">Engellenen Reklam</div>
+      </div>
+      <div class="stats-divider"></div>
+      <div class="stats-session">
+        <div class="stats-sub-count" id="sessionCount">0</div>
+        <div class="stats-sub-label">Bu oturumda</div>
+      </div>
+      <button class="reset-btn" id="resetStats" title="İstatistikleri sıfırla">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 12C3 7.03 7.03 3 12 3C16.97 3 21 7.03 21 12C21 16.97 16.97 21 12 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M3 12L6 9M3 12L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Disabled State -->
+    <div class="disabled-notice" id="disabledNotice" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <line x1="8" y1="8" x2="16" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16" y1="8" x2="8" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>Reklam engelleyici devre dışı</span>
+    </div>
+
+    <!-- Filter Options -->
+    <div class="filters-section" id="filtersSection">
+      <div class="section-title">Filtreler</div>
+
+      <div class="filter-item">
+        <div class="filter-info">
+          <div class="filter-name">Reklamları Engelle</div>
+          <div class="filter-desc">Banner, video ve sponsorlu reklamlar</div>
+        </div>
+        <label class="mini-toggle">
+          <input type="checkbox" id="blockAds" checked>
+          <span class="mini-slider"></span>
+        </label>
+      </div>
+
+      <div class="filter-item">
+        <div class="filter-info">
+          <div class="filter-name">İzleyicileri Engelle</div>
+          <div class="filter-desc">Analitik ve takip scriptleri</div>
+        </div>
+        <label class="mini-toggle">
+          <input type="checkbox" id="blockTrackers" checked>
+          <span class="mini-slider"></span>
+        </label>
+      </div>
+
+      <div class="filter-item">
+        <div class="filter-info">
+          <div class="filter-name">Açılır Pencereleri Engelle</div>
+          <div class="filter-desc">Pop-up ve yeni sekme reklamları</div>
+        </div>
+        <label class="mini-toggle">
+          <input type="checkbox" id="blockPopups" checked>
+          <span class="mini-slider"></span>
+        </label>
+      </div>
+
+      <div class="filter-item">
+        <div class="filter-info">
+          <div class="filter-name">Çerez Bildirimlerini Gizle</div>
+          <div class="filter-desc">GDPR/çerez onay pencerelerini kaldır</div>
+        </div>
+        <label class="mini-toggle">
+          <input type="checkbox" id="blockCookieNotices">
+          <span class="mini-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span class="version">v1.0.0</span>
+      <span class="separator">•</span>
+      <span class="status-text" id="statusText">Koruma aktif</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
