@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>PDF Editör</title>
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#2b2b2b;display:flex;flex-direction:column;height:100vh;overflow:hidden;color:#fff}
+
+/* Toolbar */
+.toolbar{background:#1a1a2e;padding:0 8px;height:54px;display:flex;align-items:center;gap:3px;flex-shrink:0;border-bottom:1px solid #333;overflow-x:auto}
+.sep{width:1px;height:30px;background:#444;margin:0 4px;flex-shrink:0}
+.sep.push{margin-left:auto}
+.tb{display:flex;align-items:center;gap:4px;padding:5px 9px;border:none;border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:600;white-space:nowrap;flex-shrink:0;transition:background .1s}
+.tb:disabled{opacity:.35;cursor:not-allowed}
+.tb.open  {background:#1565c0;color:#fff} .tb.open:hover:not(:disabled) {background:#0d47a1}
+.tb.merge {background:#37474f;color:#fff} .tb.merge:hover:not(:disabled){background:#263238}
+.tb.dl    {background:#2e7d32;color:#fff} .tb.dl:hover:not(:disabled)   {background:#1b5e20}
+.tb.rot   {background:#4a148c;color:#fff} .tb.rot:hover:not(:disabled)   {background:#38006b}
+.tb.del   {background:#b71c1c;color:#fff} .tb.del:hover:not(:disabled)   {background:#7f0000}
+.tb.undo  {background:#2a2a2a;color:#bbb} .tb.undo:hover:not(:disabled)  {background:#3a3a3a}
+.tb.tool  {background:#222;color:#aaa;border:2px solid transparent}
+.tb.tool:hover{background:#333}
+.tb.tool.active{background:#0d47a1;color:#fff;border-color:#42a5f5}
+.zoom-wrap{display:flex;align-items:center;gap:3px}
+.zoom-inp{width:44px;text-align:center;background:#2a2a2a;color:#fff;border:1px solid #444;border-radius:4px;padding:3px 4px;font-size:12px}
+.zbtn{width:26px;height:26px;background:#2a2a2a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:17px;line-height:1;flex-shrink:0}
+.zbtn:hover{background:#444}
+
+/* Workspace */
+.workspace{display:flex;flex:1;overflow:hidden}
+
+/* Thumbnails */
+.thumb-panel{width:132px;background:#1e1e1e;overflow-y:auto;flex-shrink:0;border-right:1px solid #333;padding:7px 5px}
+.ti{position:relative;margin-bottom:9px;cursor:pointer;border:2px solid transparent;border-radius:5px;overflow:hidden;background:#2a2a2a;user-select:none}
+.ti:hover{border-color:#555} .ti.active{border-color:#42a5f5} .ti.drag-over{border-color:#ffc107}
+.ti canvas{width:100%;display:block}
+.ti-num{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);font-size:11px;text-align:center;padding:2px;color:#ccc}
+
+/* View area */
+.view-area{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:20px;background:#3c3c3c}
+.page-wrap{position:relative;display:inline-block;box-shadow:0 4px 24px rgba(0,0,0,.7);line-height:0}
+.page-wrap canvas{display:block}
+#AC{position:absolute;top:0;left:0}
+
+/* Text edit panel */
+.text-panel{position:absolute;z-index:100;background:#1e2a3a;border:1.5px solid #42a5f5;border-radius:8px;padding:8px 10px;box-shadow:0 4px 20px rgba(0,0,0,.6);min-width:230px;pointer-events:all}
+.tp-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.tp-meta label{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.4px}
+.tp-meta input[type=color]{width:26px;height:22px;border:none;border-radius:3px;cursor:pointer;background:none;padding:1px;flex-shrink:0}
+.tp-meta input[type=number]{width:46px;background:#0d1a2a;color:#90caf9;border:1px solid #333;border-radius:4px;padding:3px 4px;font-size:12px;font-weight:700;text-align:center}
+.tp-meta span{font-size:10px;color:#555}
+.text-panel > input[type=text]{width:100%;background:#0d1a2a;color:#fff;border:1px solid #333;border-radius:5px;padding:5px 8px;font-size:13px;margin-bottom:7px;outline:none}
+.text-panel > input[type=text]:focus{border-color:#42a5f5}
+.tp-btns{display:flex;gap:5px}
+.tp-btns button{flex:1;padding:5px 4px;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600}
+.tp-ok {background:#1565c0;color:#fff} .tp-ok:hover {background:#0d47a1}
+.tp-del{background:#b71c1c;color:#fff} .tp-del:hover{background:#7f0000}
+.tp-x  {background:#333;color:#ccc}    .tp-x:hover  {background:#444}
+
+/* Clone hint banner */
+.clone-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(20,100,200,.85);color:#fff;padding:6px 14px;border-radius:20px;font-size:12.5px;pointer-events:none;z-index:90;white-space:nowrap}
+
+/* Right panel */
+.right-panel{width:196px;background:#1a1a1a;border-left:1px solid #333;padding:10px 8px;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
+.rp-sec{display:flex;flex-direction:column;gap:5px}
+.rp-lbl{display:flex;justify-content:space-between;align-items:center}
+.rp-lbl span:first-child{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#666}
+.rp-lbl .rp-val{font-size:12px;font-weight:700;color:#90caf9}
+/* Color swatches */
+.swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;margin-bottom:3px}
+.sw{width:100%;aspect-ratio:1;border-radius:3px;cursor:pointer;border:2px solid transparent;transition:border-color .1s}
+.sw:hover{border-color:#fff}
+.sw.active{border-color:#fff;box-shadow:0 0 0 1px #42a5f5}
+.rp-colorpick{width:100%;height:28px;border:none;border-radius:5px;cursor:pointer;background:none;padding:0}
+/* Sliders */
+.rp-slider{width:100%;accent-color:#42a5f5;cursor:pointer}
+/* Preset buttons */
+.presets{display:flex;gap:3px;flex-wrap:wrap}
+.presets button{padding:3px 6px;background:#252525;color:#aaa;border:1px solid #3a3a3a;border-radius:4px;cursor:pointer;font-size:10.5px}
+.presets button:hover{background:#333;color:#fff}
+.presets button.active{background:#1565c0;color:#fff;border-color:#42a5f5}
+/* Grid toggle */
+.rp-toggle-row{display:flex;align-items:center;justify-content:space-between}
+.toggle-sw{position:relative;width:36px;height:18px;flex-shrink:0}
+.toggle-sw input{opacity:0;width:0;height:0}
+.toggle-sw span{position:absolute;cursor:pointer;inset:0;background:#333;border-radius:18px;transition:.2s}
+.toggle-sw span::before{content:'';position:absolute;width:14px;height:14px;left:2px;bottom:2px;background:#aaa;border-radius:50%;transition:.2s}
+.toggle-sw input:checked + span{background:#1565c0}
+.toggle-sw input:checked + span::before{transform:translateX(18px);background:#fff}
+/* Nav */
+.rp-nav{display:flex;gap:4px}
+.rp-nav button{flex:1;padding:5px 3px;background:#252525;color:#bbb;border:1px solid #3a3a3a;border-radius:5px;cursor:pointer;font-size:12px}
+.rp-nav button:hover{background:#333}
+.hint-box{background:#111b11;border:1px solid #2a4a2a;border-radius:6px;padding:6px 8px;font-size:11px;color:#6a9a6a;line-height:1.55}
+.page-info{font-size:11px;color:#555;text-align:center;margin-top:auto}
+/* Grid overlay canvas */
+#GC{position:absolute;top:0;left:0;pointer-events:none;}
+
+/* Empty state */
+.empty-view{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#555}
+.empty-view h2{font-size:18px;color:#666}
+.drop-hint{padding:12px 24px;border:2px dashed #444;border-radius:10px;font-size:13px;color:#555;text-align:center}
+
+/* Progress overlay */
+.prog-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:10px}
+.prog-wrap{width:260px;background:#333;border-radius:10px;height:8px;overflow:hidden}
+.prog-bar{height:100%;background:#42a5f5;border-radius:10px;transition:width .1s}
+.prog-lbl{font-size:14px;color:#ccc}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <button class="tb open" id="btnOpen">📂 Aç</button>
+  <input type="file" id="fileInput" accept=".pdf" style="display:none">
+  <button class="tb merge" id="btnMerge" disabled>➕ PDF Ekle</button>
+  <input type="file" id="mergeInput" accept=".pdf" style="display:none">
+
+  <div class="sep"></div>
+  <button class="tb undo" id="btnUndo" disabled title="Ctrl+Z">↩ Geri Al</button>
+  <button class="tb undo" id="btnRedo" disabled title="Ctrl+Y">↪ Yeniden</button>
+
+  <div class="sep"></div>
+  <!-- Tools -->
+  <button class="tb tool active" data-tool="select"    title="Seç – PDF metnine tıkla, beyazlat">🖱 Seç</button>
+  <button class="tb tool"        data-tool="text"      title="Metin – kutucuklara tıkla düzenle, boşa tıkla ekle">T Metin</button>
+  <button class="tb tool"        data-tool="pen"       title="Kalem">✏ Kalem</button>
+  <button class="tb tool"        data-tool="highlight" title="Vurgula">🖍 Vurgula</button>
+  <button class="tb tool"        data-tool="whiteout"  title="Beyazlat – dikdörtgen çiz">⬜ Beyazlat</button>
+  <button class="tb tool"        data-tool="lasso"     title="Kement – serbest seçim, Ctrl+X ile kes">🔆 Kement</button>
+  <button class="tb tool"        data-tool="clone"     title="Klonla – alan seç, tıkla yapıştır">📋 Klonla</button>
+  <button class="tb tool"        data-tool="eraser"    title="Silgi">🧹 Silgi</button>
+
+  <div class="sep"></div>
+  <button class="tb rot" id="btnRotL" disabled>↺ Sol</button>
+  <button class="tb rot" id="btnRotR" disabled>↻ Sağ</button>
+  <button class="tb del" id="btnDelPage" disabled>🗑 Sayfayı Sil</button>
+
+  <div class="sep"></div>
+  <div class="zoom-wrap">
+    <button class="zbtn" id="btnZoomOut">−</button>
+    <input class="zoom-inp" type="number" id="zoomInp" value="100" min="25" max="400" step="10">
+    <span style="font-size:11px;color:#666">%</span>
+    <button class="zbtn" id="btnZoomIn">+</button>
+  </div>
+
+  <div class="sep push"></div>
+  <button class="tb dl" id="btnDL" disabled>⬇ İndir</button>
+</div>
+
+<!-- Workspace -->
+<div class="workspace">
+  <div class="thumb-panel" id="thumbPanel"></div>
+
+  <div class="view-area" id="viewArea">
+    <div class="empty-view" id="emptyView">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="#555"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6z"/></svg>
+      <h2>PDF Dosyası Yok</h2>
+      <div class="drop-hint">📂 Sürükle bırak veya "Aç" butonunu kullan</div>
+    </div>
+
+    <div class="page-wrap" id="pageWrap" style="display:none">
+      <canvas id="PC"></canvas><!-- pdf canvas -->
+      <canvas id="GC"></canvas><!-- grid canvas -->
+      <canvas id="AC"></canvas><!-- annotation canvas -->
+      <!-- Text edit panel (inside pageWrap for correct absolute positioning) -->
+      <div class="text-panel" id="textPanel" style="display:none">
+        <div class="tp-meta">
+          <input type="color" id="tpColor" value="#000000" title="Metin rengi">
+          <label>Boyut</label>
+          <input type="number" id="tpSize" min="4" max="200" value="12">
+          <span>px</span>
+        </div>
+        <input type="text" id="tpInput" placeholder="Metin yazın…">
+        <div class="tp-btns">
+          <button class="tp-ok"  id="tpOK">✓ Onayla</button>
+          <button class="tp-del" id="tpDel">🗑 Sil</button>
+          <button class="tp-x"   id="tpX">✕</button>
+        </div>
+      </div>
+      <!-- Clone hint -->
+      <div class="clone-hint" id="cloneHint" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="right-panel">
+    <!-- Renk -->
+    <div class="rp-sec">
+      <div class="rp-lbl"><span>Renk</span></div>
+      <div class="swatches" id="swatches"></div>
+      <input type="color" id="dColor" class="rp-colorpick" value="#e53935" title="Özel renk seç">
+    </div>
+
+    <!-- Boyut -->
+    <div class="rp-sec">
+      <div class="rp-lbl"><span>Boyut</span><span class="rp-val" id="dSizeVal">4px</span></div>
+      <input type="range" class="rp-slider" id="dSize" min="1" max="60" value="4">
+      <div class="presets" id="sizePresets">
+        <button data-sz="2">İnce</button>
+        <button data-sz="4" class="active">Normal</button>
+        <button data-sz="8">Kalın</button>
+        <button data-sz="16">Çok kalın</button>
+      </div>
+    </div>
+
+    <!-- Opaklık -->
+    <div class="rp-sec">
+      <div class="rp-lbl"><span>Opaklık</span><span class="rp-val" id="dOpaVal">100%</span></div>
+      <input type="range" class="rp-slider" id="dOpa" min="10" max="100" value="100">
+      <div class="presets" id="opaPresets">
+        <button data-opa="25">25%</button>
+        <button data-opa="50">50%</button>
+        <button data-opa="75">75%</button>
+        <button data-opa="100" class="active">100%</button>
+      </div>
+    </div>
+
+    <!-- Izgara -->
+    <div class="rp-sec">
+      <div class="rp-toggle-row">
+        <span style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#666">Izgara / Hizala</span>
+        <label class="toggle-sw"><input type="checkbox" id="gridToggle"><span></span></label>
+      </div>
+      <div id="gridControls" style="display:none">
+        <div class="rp-lbl" style="margin-top:4px"><span style="font-size:10px;color:#666">Aralık</span><span class="rp-val" id="gridSzVal">20px</span></div>
+        <input type="range" class="rp-slider" id="gridSzSlider" min="5" max="80" value="20" step="5">
+      </div>
+    </div>
+
+    <!-- Gezinti -->
+    <div class="rp-sec">
+      <div class="rp-nav">
+        <button id="btnPrev">‹ Önceki</button>
+        <button id="btnNext">Sonraki ›</button>
+      </div>
+    </div>
+
+    <div class="hint-box" id="toolHint">Araç ipucu burada görünür.</div>
+    <div class="page-info" id="pageInfo">—</div>
+  </div>
+</div>
+
+<!-- Progress overlay -->
+<div class="prog-ov" id="progOv" style="display:none">
+  <div class="prog-lbl" id="progLbl">İşleniyor…</div>
+  <div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+const { PDFDocument, StandardFonts, rgb, degrees } = PDFLib;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let pdfDoc = null, pdfJsDoc = null;
+let curPage = 0, zoom = 1.0;
+let tool = 'select';
+let drawColor = '#e53935', drawSize = 4, drawOpacity = 1.0;
+
+// Annotation layer: coords stored in REFERENCE units (zoom=1.0 canvas pixels)
+// { strokes, texts, whiteRects, lassoFills, clones }
+const annotLayers = new Map();
+
+// PDF text items for current page (reference coords)
+let pdfTextItems = [];
+
+// Hover / selection state per tool
+let selHovPdf   = null;   // select tool: hovered PDF text item
+let selHovUser  = -1;     // select tool: hovered user annotation index (texts,clones,whites)
+let textHovPdf  = null;   // text tool: hovered PDF text item
+let textHovUser = -1;     // text tool: hovered user text index
+
+// Select-tool drag (move annotations)
+// { type:'text'|'whiteRect'|'clone'|'stroke', idx, offX, offY, moved:bool }
+let selDrag = null;
+
+// Active lasso selection (not yet cut)
+let lassoSel = null;      // { pts: [{x,y}] }
+
+// Clone tool state
+// phase:'selecting' = Alt+drag in progress  (drag:{sx,sy,ex,ey})
+// phase:'placing'   = source captured, waiting for click to paste (src:{rx,ry,rw,rh,url}, cursor:{cx,cy})
+let cloneState = null;
+
+// Text panel state
+let textPanelTarget = null;
+// { type: 'new'|'pdfText'|'userText', ref: {x,y}?, pdfItem?, userIdx? }
+
+// Drawing state
+let isDrawing = false;
+let penPts  = [];   // pen/highlight
+let woDrag  = null; // whiteout drag start {rx,ry}
+
+// Reference canvas size
+let refW = 1, refH = 1;
+
+// Grid state
+let gridActive = false, gridSize = 20;
+
+// Undo / redo
+const undoStack = [], redoStack = [];
+
+// Image cache for clones
+const imgCache = new Map();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ELEMENTS
+// ══════════════════════════════════════════════════════════════════════════════
+const fileInput  = document.getElementById('fileInput');
+const mergeInput = document.getElementById('mergeInput');
+const PC         = document.getElementById('PC');   // pdf canvas
+const GC         = document.getElementById('GC');   // grid canvas
+const AC         = document.getElementById('AC');   // annot canvas
+const pageWrap   = document.getElementById('pageWrap');
+const emptyView  = document.getElementById('emptyView');
+const thumbPanel = document.getElementById('thumbPanel');
+const pageInfo   = document.getElementById('pageInfo');
+const toolHint   = document.getElementById('toolHint');
+const viewArea   = document.getElementById('viewArea');
+const cloneHint  = document.getElementById('cloneHint');
+const textPanel  = document.getElementById('textPanel');
+const tpInput    = document.getElementById('tpInput');
+const tpColor    = document.getElementById('tpColor');
+const tpSize     = document.getElementById('tpSize');
+const pctx       = PC.getContext('2d');
+const gctx       = GC.getContext('2d');
+const actx       = AC.getContext('2d');
+
+const HINTS = {
+  select:    'Seç: PDF metni üzerine gel → tıkla beyazlat. Eklediğin öğeleri sürükle taşı.',
+  text:      'Metin: mavi=PDF metni, turuncu=eklediğin metin. Tıkla düzenle/sil. Boşluğa tıkla yeni metin.',
+  pen:       'Kalem: serbest çizim yap.',
+  highlight: 'Vurgula: renkli çizgi çek.',
+  whiteout:  'Beyazlat: dikdörtgen sürükle, bırak.',
+  lasso:     'Kement: serbest alan çiz. Ctrl+X ile kes (beyazlat). Esc ile iptal.',
+  clone:     'Klonla: Alt+Sürükle = kaynak alanı seç → tıkla = klon yapıştır. Esc = iptal.',
+  eraser:    'Silgi: eklenen çizimlerin üzerinden geç.',
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════════════════════════
+function toast(msg, dur = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+function setProgress(lbl, pct) {
+  const ov  = document.getElementById('progOv');
+  if (lbl === null) { ov.style.display = 'none'; return; }
+  ov.style.display = 'flex';
+  document.getElementById('progLbl').textContent = lbl;
+  document.getElementById('progBar').style.width = pct + '%';
+}
+function setEnabled(on) {
+  ['btnMerge','btnRotL','btnRotR','btnDelPage','btnDL'].forEach(id =>
+    document.getElementById(id).disabled = !on);
+}
+function hexToRgb(hex) {
+  const n = parseInt(hex.replace('#',''), 16);
+  return { r: ((n>>16)&255)/255, g: ((n>>8)&255)/255, b: (n&255)/255 };
+}
+function sanitize(s) { return s.replace(/[^\x20-\x7E\xA0-\xFF]/g, '?'); }
+function toRef(cx, cy)    { return { x: cx/zoom, y: cy/zoom }; }
+function toCanvas(rx, ry) { return { x: rx*zoom, y: ry*zoom }; }
+function snap(v) { return gridActive ? Math.round(v / gridSize) * gridSize : v; }
+
+function getPos(e) {
+  const r = AC.getBoundingClientRect();
+  return {
+    x: (e.clientX - r.left) * (AC.width  / r.width),
+    y: (e.clientY - r.top)  * (AC.height / r.height)
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UNDO / REDO
+// ══════════════════════════════════════════════════════════════════════════════
+function cloneLayers() {
+  const c = new Map();
+  annotLayers.forEach((v, k) => {
+    // Deep clone, but handle imgDataUrl strings (long) without issues
+    const copy = {
+      strokes:    v.strokes.map(s => ({ ...s, pts: s.pts.map(p => ({...p})) })),
+      texts:      v.texts.map(t => ({...t})),
+      whiteRects: v.whiteRects.map(r => ({...r})),
+      lassoFills: v.lassoFills.map(l => l.map(p => ({...p}))),
+      clones:     v.clones.map(cl => ({...cl})),
+    };
+    c.set(k, copy);
+  });
+  return c;
+}
+function restoreLayers(c) {
+  annotLayers.clear();
+  c.forEach((v, k) => annotLayers.set(k, v));
+}
+function snapshot() {
+  undoStack.push(cloneLayers());
+  redoStack.length = 0;
+  if (undoStack.length > 20) undoStack.shift();
+  updateUndoBtns();
+}
+function undo() {
+  if (!undoStack.length) return;
+  redoStack.push(cloneLayers());
+  restoreLayers(undoStack.pop());
+  redrawAnnotLayer(); updateUndoBtns(); toast('Geri alındı');
+}
+function redo() {
+  if (!redoStack.length) return;
+  undoStack.push(cloneLayers());
+  restoreLayers(redoStack.pop());
+  redrawAnnotLayer(); updateUndoBtns(); toast('Yeniden yapıldı');
+}
+function updateUndoBtns() {
+  document.getElementById('btnUndo').disabled = !undoStack.length;
+  document.getElementById('btnRedo').disabled = !redoStack.length;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ANNOTATION LAYER
+// ══════════════════════════════════════════════════════════════════════════════
+function getLayer(idx) {
+  if (!annotLayers.has(idx))
+    annotLayers.set(idx, { strokes:[], texts:[], whiteRects:[], lassoFills:[], clones:[] });
+  return annotLayers.get(idx);
+}
+
+// Approximate bounding box of a user text annotation (in ref coords)
+function userTextBB(t) {
+  actx.save();
+  actx.font = `bold ${t.size * zoom}px Arial`;
+  const tw = actx.measureText(t.text).width / zoom;
+  actx.restore();
+  return { rx: t.x - 2, ry: t.y - t.size - 2, rw: tw + 4, rh: t.size * 1.35 + 4 };
+}
+
+function getCachedImg(url) {
+  if (!imgCache.has(url)) {
+    const img = new Image();
+    img.src = url;
+    img.onload = () => redrawAnnotLayer();
+    imgCache.set(url, img);
+  }
+  return imgCache.get(url);
+}
+
+// Draw grid on GC canvas
+function drawGrid() {
+  gctx.clearRect(0, 0, GC.width, GC.height);
+  if (!gridActive) return;
+  const g = gridSize * zoom;
+  gctx.save();
+  gctx.strokeStyle = 'rgba(100,160,255,0.18)';
+  gctx.lineWidth   = 0.5;
+  for (let x = 0; x < GC.width; x += g) {
+    gctx.beginPath(); gctx.moveTo(x, 0); gctx.lineTo(x, GC.height); gctx.stroke();
+  }
+  for (let y = 0; y < GC.height; y += g) {
+    gctx.beginPath(); gctx.moveTo(0, y); gctx.lineTo(GC.width, y); gctx.stroke();
+  }
+  gctx.restore();
+}
+
+function redrawAnnotLayer(overlay = true) {
+  actx.clearRect(0, 0, AC.width, AC.height);
+  const layer = getLayer(curPage);
+
+  // White rects (whiteout)
+  actx.fillStyle = '#fff';
+  layer.whiteRects.forEach(r =>
+    actx.fillRect(r.x*zoom, r.y*zoom, r.w*zoom, r.h*zoom));
+
+  // Lasso fills
+  layer.lassoFills.forEach(pts => {
+    if (pts.length < 3) return;
+    actx.save();
+    actx.fillStyle = '#fff';
+    actx.beginPath();
+    actx.moveTo(pts[0].x*zoom, pts[0].y*zoom);
+    pts.forEach(p => actx.lineTo(p.x*zoom, p.y*zoom));
+    actx.closePath(); actx.fill();
+    actx.restore();
+  });
+
+  // Clones
+  layer.clones.forEach(cl => {
+    const img = getCachedImg(cl.url);
+    if (img.complete && img.naturalWidth > 0)
+      actx.drawImage(img, cl.dx*zoom, cl.dy*zoom, cl.rw*zoom, cl.rh*zoom);
+  });
+
+  // Strokes
+  layer.strokes.forEach(s => {
+    if (s.pts.length < 2) return;
+    actx.save();
+    actx.globalAlpha = s.opacity;
+    actx.strokeStyle = s.color;
+    actx.lineWidth   = s.size * zoom;
+    actx.lineCap = 'round'; actx.lineJoin = 'round';
+    if (s.highlight) actx.globalCompositeOperation = 'multiply';
+    actx.beginPath();
+    actx.moveTo(s.pts[0].x*zoom, s.pts[0].y*zoom);
+    s.pts.forEach(p => actx.lineTo(p.x*zoom, p.y*zoom));
+    actx.stroke();
+    actx.restore();
+  });
+
+  // User texts
+  layer.texts.forEach(t => {
+    actx.save();
+    actx.globalAlpha = t.opacity;
+    actx.fillStyle   = t.color;
+    actx.font        = `bold ${t.size*zoom}px Arial`;
+    actx.fillText(t.text, t.x*zoom, t.y*zoom);
+    actx.restore();
+  });
+
+  // ── Tool overlays ──────────────────────────────────────────────────────────
+  if (!overlay) return;
+
+  // Select tool: PDF text boxes + user annotation boxes (draggable)
+  if (tool === 'select') {
+    pdfTextItems.forEach(ti => {
+      const hov = ti === selHovPdf;
+      actx.save();
+      actx.fillStyle   = hov ? 'rgba(33,150,243,.18)' : 'rgba(33,150,243,.05)';
+      actx.strokeStyle = hov ? '#2196F3' : 'rgba(33,150,243,.35)';
+      actx.lineWidth   = hov ? 1.5 : 0.7;
+      actx.fillRect  (ti.rx*zoom, ti.ry*zoom, ti.rw*zoom, ti.rh*zoom);
+      actx.strokeRect(ti.rx*zoom, ti.ry*zoom, ti.rw*zoom, ti.rh*zoom);
+      actx.restore();
+    });
+    // User texts — orange, draggable
+    layer.texts.forEach((t, i) => {
+      const bb  = userTextBB(t);
+      const hov = i === selHovUser;
+      actx.save();
+      actx.fillStyle   = hov ? 'rgba(255,111,0,.15)' : 'rgba(255,111,0,.04)';
+      actx.strokeStyle = hov ? '#FF6F00' : 'rgba(255,111,0,.3)';
+      actx.lineWidth   = hov ? 1.5 : 0.7;
+      actx.fillRect  (bb.rx*zoom, bb.ry*zoom, bb.rw*zoom, bb.rh*zoom);
+      actx.strokeRect(bb.rx*zoom, bb.ry*zoom, bb.rw*zoom, bb.rh*zoom);
+      actx.restore();
+    });
+    // Clones — teal, draggable
+    layer.clones.forEach((cl, i) => {
+      const hov = selHovUser >= 10000 && (selHovUser - 10000) === i;
+      actx.save();
+      actx.strokeStyle = hov ? '#26c6da' : 'rgba(38,198,218,.3)';
+      actx.lineWidth   = hov ? 1.5 : 0.7;
+      actx.strokeRect(cl.dx*zoom, cl.dy*zoom, cl.rw*zoom, cl.rh*zoom);
+      actx.restore();
+    });
+  }
+
+  // Text tool: PDF text boxes (blue) + user text boxes (orange)
+  if (tool === 'text') {
+    pdfTextItems.forEach(ti => {
+      const hov = ti === textHovPdf;
+      actx.save();
+      actx.fillStyle   = hov ? 'rgba(33,150,243,.18)' : 'rgba(33,150,243,.05)';
+      actx.strokeStyle = hov ? '#2196F3' : 'rgba(33,150,243,.4)';
+      actx.lineWidth   = hov ? 1.5 : 0.8;
+      actx.fillRect  (ti.rx*zoom, ti.ry*zoom, ti.rw*zoom, ti.rh*zoom);
+      actx.strokeRect(ti.rx*zoom, ti.ry*zoom, ti.rw*zoom, ti.rh*zoom);
+      actx.restore();
+    });
+    layer.texts.forEach((t, i) => {
+      const bb  = userTextBB(t);
+      const hov = i === textHovUser;
+      actx.save();
+      actx.fillStyle   = hov ? 'rgba(255,111,0,.18)' : 'rgba(255,111,0,.05)';
+      actx.strokeStyle = hov ? '#FF6F00' : 'rgba(255,111,0,.45)';
+      actx.lineWidth   = hov ? 2 : 0.8;
+      actx.setLineDash(hov ? [] : [3,3]);
+      actx.fillRect  (bb.rx*zoom, bb.ry*zoom, bb.rw*zoom, bb.rh*zoom);
+      actx.strokeRect(bb.rx*zoom, bb.ry*zoom, bb.rw*zoom, bb.rh*zoom);
+      actx.setLineDash([]);
+      actx.restore();
+    });
+  }
+
+  // Lasso selection outline
+  if (lassoSel && lassoSel.pts.length > 1) {
+    actx.save();
+    actx.strokeStyle = '#FF6F00';
+    actx.lineWidth   = 1.5;
+    actx.setLineDash([5, 4]);
+    actx.beginPath();
+    actx.moveTo(lassoSel.pts[0].x*zoom, lassoSel.pts[0].y*zoom);
+    lassoSel.pts.forEach(p => actx.lineTo(p.x*zoom, p.y*zoom));
+    if (!isDrawing) actx.closePath(); // closed when finished
+    actx.stroke();
+    actx.setLineDash([]);
+    actx.restore();
+  }
+
+  // Clone: Alt+drag seçim rect — minimal, altın sarısı çerçeve
+  if (tool === 'clone' && cloneState?.phase === 'selecting' && cloneState.drag) {
+    const { sx, sy, ex, ey } = cloneState.drag;
+    const rx = Math.min(sx, ex)*zoom, ry = Math.min(sy, ey)*zoom;
+    const rw = Math.abs(ex-sx)*zoom,  rh = Math.abs(ey-sy)*zoom;
+    actx.save();
+    actx.fillStyle   = 'rgba(255,220,0,.08)';
+    actx.strokeStyle = 'rgba(220,180,0,.7)';
+    actx.lineWidth   = 1;
+    actx.fillRect(rx, ry, rw, rh);
+    actx.strokeRect(rx, ry, rw, rh);
+    actx.restore();
+  }
+  // Clone: yerleştirme önizlemesi — sadece yarı saydam görüntü, çerçeve yok
+  if (tool === 'clone' && cloneState?.phase === 'placing' && cloneState.cursor) {
+    const { cx, cy } = cloneState.cursor;
+    const { rw, rh, url } = cloneState.src;
+    const img = getCachedImg(url);
+    if (img.complete && img.naturalWidth > 0) {
+      const sx2 = snap(cx), sy2 = snap(cy);
+      actx.save();
+      actx.globalAlpha = 0.55;
+      actx.drawImage(img, sx2*zoom, sy2*zoom, rw*zoom, rh*zoom);
+      actx.restore();
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PDF TEXT EXTRACTION
+// ══════════════════════════════════════════════════════════════════════════════
+async function extractTextItems() {
+  pdfTextItems = [];
+  if (!pdfJsDoc) return;
+  const jsPage  = await pdfJsDoc.getPage(curPage + 1);
+  const vp1     = jsPage.getViewport({ scale: 1.0 });
+  const [a, b, c, d, e, f] = vp1.transform;
+  const content = await jsPage.getTextContent();
+  pdfTextItems = content.items
+    .filter(it => it.str && it.str.trim().length > 0)
+    .map(it => {
+      const tx = it.transform[4], ty = it.transform[5];
+      const cx = a*tx + c*ty + e;
+      const cy = b*tx + d*ty + f;
+      const fs = Math.abs(it.transform[3]);
+      const fw = it.width || fs * it.str.length * 0.55;
+      return { str: it.str, rx: cx, ry: cy - fs, rw: Math.max(fw, 4), rh: Math.max(fs*1.3, 5) };
+    });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PAGE RENDERING
+// ══════════════════════════════════════════════════════════════════════════════
+async function renderPage() {
+  const count = pdfDoc.getPageCount();
+  if (curPage >= count) curPage = count - 1;
+  if (curPage < 0)      curPage = 0;
+
+  const jsPage = await pdfJsDoc.getPage(curPage + 1);
+  const vp     = jsPage.getViewport({ scale: zoom });
+  const vp1    = jsPage.getViewport({ scale: 1.0 });
+  refW = vp1.width; refH = vp1.height;
+
+  PC.width = AC.width = GC.width  = vp.width;
+  PC.height = AC.height = GC.height = vp.height;
+
+  await jsPage.render({ canvasContext: pctx, viewport: vp }).promise;
+  drawGrid();
+
+  if (tool === 'select' || tool === 'text') await extractTextItems();
+  redrawAnnotLayer();
+  pageInfo.textContent = `Sayfa ${curPage+1} / ${count}`;
+  highlightThumb(curPage);
+  hideTextPanel();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// THUMBNAILS
+// ══════════════════════════════════════════════════════════════════════════════
+let thumbAbort = null;
+window._dragSrc = null;
+
+async function renderAllThumbs() {
+  if (thumbAbort) thumbAbort.dead = true;
+  const tok = { dead: false };
+  thumbAbort = tok;
+  const count = pdfDoc.getPageCount();
+  thumbPanel.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    if (tok.dead) return;
+    const el = makeThumbEl(i);
+    thumbPanel.appendChild(el);
+    const jsPage = await pdfJsDoc.getPage(i+1).catch(()=>null);
+    if (!jsPage || tok.dead) continue;
+    const vp = jsPage.getViewport({ scale: 0.22 });
+    const tc = el.querySelector('canvas');
+    tc.width = vp.width; tc.height = vp.height;
+    await jsPage.render({ canvasContext: tc.getContext('2d'), viewport: vp }).promise;
+  }
+}
+function makeThumbEl(i) {
+  const el = document.createElement('div');
+  el.className = 'ti' + (i===curPage?' active':'');
+  el.dataset.idx = i;
+  el.draggable = true;
+  const tc = document.createElement('canvas');
+  const num = document.createElement('div');
+  num.className = 'ti-num'; num.textContent = i+1;
+  el.appendChild(tc); el.appendChild(num);
+  el.addEventListener('click', async () => { curPage = i; await renderPage(); });
+  el.addEventListener('dragstart', () => { window._dragSrc = i; });
+  el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('drag-over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+  el.addEventListener('drop', async e => {
+    e.preventDefault(); el.classList.remove('drag-over');
+    if (window._dragSrc !== null && window._dragSrc !== i) await reorderPages(window._dragSrc, i);
+    window._dragSrc = null;
+  });
+  return el;
+}
+function highlightThumb(idx) {
+  document.querySelectorAll('.ti').forEach((el, i) => el.classList.toggle('active', i===idx));
+}
+async function reorderPages(from, to) {
+  setProgress('Yeniden düzenleniyor…', 40);
+  const order = Array.from({length: pdfDoc.getPageCount()}, (_,i)=>i);
+  order.splice(from, 1); order.splice(to, 0, from);
+  const newDoc = await PDFDocument.create();
+  const copied = await newDoc.copyPages(pdfDoc, order);
+  copied.forEach(p => newDoc.addPage(p));
+  const newL = new Map();
+  order.forEach((oldIdx, newIdx) => {
+    if (annotLayers.has(oldIdx)) newL.set(newIdx, annotLayers.get(oldIdx));
+  });
+  annotLayers.clear(); newL.forEach((v,k) => annotLayers.set(k,v));
+  pdfDoc = newDoc; curPage = 0;
+  await refreshPdfJs(); setProgress(null);
+  await renderPage(); await renderAllThumbs();
+  toast('Sayfalar yeniden sıralandı');
+}
+async function renderThumb(idx) {
+  const el = document.querySelectorAll('.ti')[idx];
+  if (!el) return;
+  const tc = el.querySelector('canvas');
+  const jsPage = await pdfJsDoc.getPage(idx+1).catch(()=>null);
+  if (!jsPage) return;
+  const vp = jsPage.getViewport({ scale: 0.22 });
+  tc.width = vp.width; tc.height = vp.height;
+  await jsPage.render({ canvasContext: tc.getContext('2d'), viewport: vp }).promise;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PDF LOAD / MERGE / REFRESH
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadBytes(bytes) {
+  setProgress('PDF yükleniyor…', 20);
+  pdfDoc   = await PDFDocument.load(bytes, { ignoreEncryption: true });
+  pdfJsDoc = await pdfjsLib.getDocument({ data: bytes.slice() }).promise;
+  curPage  = 0;
+  annotLayers.clear();
+  undoStack.length = 0; redoStack.length = 0; updateUndoBtns();
+  setProgress('Tamamlandı', 100);
+  setTimeout(() => setProgress(null), 300);
+  setEnabled(true);
+  emptyView.style.display = 'none';
+  pageWrap.style.display  = 'inline-block';
+  await renderPage(); await renderAllThumbs();
+  toast(`PDF yüklendi — ${pdfDoc.getPageCount()} sayfa`);
+}
+async function refreshPdfJs() {
+  const bytes = await pdfDoc.save();
+  pdfJsDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+}
+async function mergePdfBytes(bytes) {
+  setProgress('Birleştiriliyor…', 30);
+  const other  = await PDFDocument.load(bytes, { ignoreEncryption: true });
+  const copied = await pdfDoc.copyPages(other, other.getPageIndices());
+  copied.forEach(p => pdfDoc.addPage(p));
+  await refreshPdfJs(); setProgress(null);
+  await renderAllThumbs();
+  toast(`${copied.length} sayfa eklendi`);
+}
+
+fileInput.addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  fileInput.value = '';
+  await loadBytes(new Uint8Array(await f.arrayBuffer()));
+});
+mergeInput.addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  mergeInput.value = '';
+  await mergePdfBytes(new Uint8Array(await f.arrayBuffer()));
+});
+document.getElementById('btnOpen').addEventListener('click',  () => fileInput.click());
+document.getElementById('btnMerge').addEventListener('click', () => mergeInput.click());
+
+viewArea.addEventListener('dragover', e => e.preventDefault());
+viewArea.addEventListener('drop', async e => {
+  e.preventDefault();
+  const f = [...e.dataTransfer.files].find(x => x.name.toLowerCase().endsWith('.pdf'));
+  if (!f) return;
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  if (!pdfDoc) await loadBytes(bytes); else await mergePdfBytes(bytes);
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ROTATE / DELETE
+// ══════════════════════════════════════════════════════════════════════════════
+document.getElementById('btnRotL').addEventListener('click', () => rotateCur(-90));
+document.getElementById('btnRotR').addEventListener('click', () => rotateCur(90));
+async function rotateCur(deg) {
+  const p = pdfDoc.getPage(curPage);
+  p.setRotation(degrees((p.getRotation().angle + deg + 360) % 360));
+  await refreshPdfJs(); await renderPage(); renderThumb(curPage);
+  toast(`${deg>0?'Sağa':'Sola'} döndürüldü`);
+}
+document.getElementById('btnDelPage').addEventListener('click', async () => {
+  if (pdfDoc.getPageCount() <= 1) { toast('Son sayfa silinemez!'); return; }
+  if (!confirm(`Sayfa ${curPage+1} silinsin mi?`)) return;
+  pdfDoc.removePage(curPage);
+  annotLayers.delete(curPage);
+  if (curPage >= pdfDoc.getPageCount()) curPage--;
+  await refreshPdfJs(); await renderPage(); await renderAllThumbs();
+  toast('Sayfa silindi');
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TEXT EDIT PANEL
+// ══════════════════════════════════════════════════════════════════════════════
+function showTextPanel(canvasLeft, canvasTop, initialText, canDelete, fontSize, fontColor) {
+  tpInput.value    = initialText;
+  tpColor.value    = fontColor || drawColor;
+  tpSize.value     = fontSize  || Math.round(drawSize * 3) || 12;
+  document.getElementById('tpDel').style.display = canDelete ? '' : 'none';
+
+  const pw = pageWrap.clientWidth, ph = pageWrap.clientHeight;
+  let left = Math.max(2, Math.min(canvasLeft, pw - 245));
+  let top  = Math.max(2, Math.min(canvasTop + 4, ph - 110));
+  textPanel.style.left    = left + 'px';
+  textPanel.style.top     = top  + 'px';
+  textPanel.style.display = '';
+  tpInput.focus();
+  tpInput.select();
+}
+function hideTextPanel() {
+  textPanel.style.display = 'none';
+  textPanelTarget = null;
+}
+
+function commitTextPanel() {
+  const txt = tpInput.value.trim();
+  if (!textPanelTarget) return;
+  const { type, ref, pdfItem, userIdx } = textPanelTarget;
+
+  const pColor = tpColor.value;
+  const pSize  = Math.max(4, Math.min(200, parseInt(tpSize.value) || 12));
+
+  if (type === 'new') {
+    if (!txt) { hideTextPanel(); return; }
+    snapshot();
+    getLayer(curPage).texts.push({
+      text: txt, x: snap(ref.x), y: snap(ref.y),
+      color: pColor, size: pSize, opacity: drawOpacity
+    });
+  } else if (type === 'userText') {
+    if (!txt) {
+      snapshot();
+      getLayer(curPage).texts.splice(userIdx, 1);
+    } else {
+      snapshot();
+      const t = getLayer(curPage).texts[userIdx];
+      t.text = txt; t.color = pColor; t.size = pSize;
+    }
+  } else if (type === 'pdfText') {
+    snapshot();
+    const layer = getLayer(curPage);
+    layer.whiteRects.push({
+      x: pdfItem.rx - 1, y: pdfItem.ry - 1,
+      w: pdfItem.rw + 2, h: pdfItem.rh + 4
+    });
+    if (txt) {
+      layer.texts.push({
+        text: txt, x: pdfItem.rx, y: pdfItem.ry + pdfItem.rh - 2,
+        color: pColor, size: pSize, opacity: drawOpacity
+      });
+    }
+  }
+  hideTextPanel();
+  redrawAnnotLayer();
+}
+
+function deleteTextPanelTarget() {
+  if (!textPanelTarget) return;
+  const { type, pdfItem, userIdx } = textPanelTarget;
+  if (type === 'pdfText') {
+    snapshot();
+    const layer = getLayer(curPage);
+    layer.whiteRects.push({
+      x: pdfItem.rx-1, y: pdfItem.ry-1,
+      w: pdfItem.rw+2, h: pdfItem.rh+4
+    });
+  } else if (type === 'userText') {
+    snapshot();
+    getLayer(curPage).texts.splice(userIdx, 1);
+  }
+  hideTextPanel(); redrawAnnotLayer();
+}
+
+document.getElementById('tpOK').addEventListener('click', commitTextPanel);
+document.getElementById('tpDel').addEventListener('click', deleteTextPanelTarget);
+document.getElementById('tpX').addEventListener('click', hideTextPanel);
+tpInput.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter')  { ev.stopPropagation(); commitTextPanel(); }
+  if (ev.key === 'Escape') { ev.stopPropagation(); hideTextPanel(); }
+  ev.stopPropagation();
+});
+tpSize.addEventListener('keydown', ev => ev.stopPropagation());
+tpColor.addEventListener('keydown', ev => ev.stopPropagation());
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LASSO SELECTION
+// ══════════════════════════════════════════════════════════════════════════════
+function cutLassoSelection() {
+  if (!lassoSel || lassoSel.pts.length < 3) { toast('Önce kement ile alan seçin'); return; }
+  snapshot();
+  getLayer(curPage).lassoFills.push(lassoSel.pts.slice());
+  lassoSel = null;
+  isDrawing = false;
+  redrawAnnotLayer();
+  toast('Alan kesildi (beyazlatıldı)');
+}
+function clearLassoSel() {
+  lassoSel = null; isDrawing = false; redrawAnnotLayer();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CLONE TOOL
+// ══════════════════════════════════════════════════════════════════════════════
+function captureArea(rx, ry, rw, rh) {
+  const sw = Math.round(rw * zoom), sh = Math.round(rh * zoom);
+  if (sw < 2 || sh < 2) return null;
+  // Overlay'siz çiz (seçim kutusu, klonlama modu grafikleri olmadan)
+  redrawAnnotLayer(false);
+  const cap = document.createElement('canvas');
+  cap.width = sw; cap.height = sh;
+  const cctx = cap.getContext('2d');
+  cctx.drawImage(PC, rx*zoom, ry*zoom, rw*zoom, rh*zoom, 0, 0, sw, sh);
+  cctx.drawImage(AC, rx*zoom, ry*zoom, rw*zoom, rh*zoom, 0, 0, sw, sh);
+  redrawAnnotLayer(true); // Overlay'leri geri getir
+  return cap.toDataURL('image/png');
+}
+function cancelClone() {
+  cloneState = null;
+  cloneHint.style.display = 'none';
+  AC.style.cursor = 'crosshair';
+  redrawAnnotLayer();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CANVAS MOUSE EVENTS
+// ══════════════════════════════════════════════════════════════════════════════
+AC.addEventListener('mousedown', e => {
+  if (!pdfDoc) return;
+  if (textPanel.style.display !== 'none' && !textPanel.contains(e.target)) hideTextPanel();
+
+  const pos = getPos(e);
+  const ref = toRef(pos.x, pos.y);
+
+  // ── Clone ─────────────────────────────────────────────────────────────────
+  if (tool === 'clone') {
+    if (e.altKey) {
+      // Alt + sürükle = kaynak alanı seç
+      cloneState = { phase: 'selecting', drag: { sx: ref.x, sy: ref.y, ex: ref.x, ey: ref.y } };
+      isDrawing = true;
+    } else if (cloneState?.phase === 'placing') {
+      // Normal tıklama = klon yapıştır (mouseup'ta işlenir)
+    }
+    return;
+  }
+
+  // ── Select ────────────────────────────────────────────────────────────────
+  if (tool === 'select') {
+    const layer = getLayer(curPage);
+    // Önce user annotation sürükleme kontrolü
+    let dragFound = false;
+    for (let i = layer.texts.length - 1; i >= 0; i--) {
+      const bb = userTextBB(layer.texts[i]);
+      if (ref.x >= bb.rx && ref.x <= bb.rx+bb.rw && ref.y >= bb.ry && ref.y <= bb.ry+bb.rh) {
+        snapshot();
+        selDrag = { type: 'text', idx: i, offX: ref.x - layer.texts[i].x, offY: ref.y - layer.texts[i].y, moved: false };
+        isDrawing = true; dragFound = true; break;
+      }
+    }
+    if (!dragFound) {
+      for (let i = layer.clones.length - 1; i >= 0; i--) {
+        const cl = layer.clones[i];
+        if (ref.x >= cl.dx && ref.x <= cl.dx+cl.rw && ref.y >= cl.dy && ref.y <= cl.dy+cl.rh) {
+          snapshot();
+          selDrag = { type: 'clone', idx: i, offX: ref.x - cl.dx, offY: ref.y - cl.dy, moved: false };
+          isDrawing = true; dragFound = true; break;
+        }
+      }
+    }
+    if (!dragFound) {
+      for (let i = layer.whiteRects.length - 1; i >= 0; i--) {
+        const r2 = layer.whiteRects[i];
+        if (ref.x >= r2.x && ref.x <= r2.x+r2.w && ref.y >= r2.y && ref.y <= r2.y+r2.h) {
+          snapshot();
+          selDrag = { type: 'whiteRect', idx: i, offX: ref.x - r2.x, offY: ref.y - r2.y, moved: false };
+          isDrawing = true; dragFound = true; break;
+        }
+      }
+    }
+    if (!dragFound && selHovPdf) {
+      // PDF metin → beyazlat
+      snapshot();
+      const ti = selHovPdf;
+      getLayer(curPage).whiteRects.push({ x: ti.rx-1, y: ti.ry-1, w: ti.rw+2, h: ti.rh+4 });
+      selHovPdf = null; redrawAnnotLayer();
+    }
+    return;
+  }
+
+  // ── Text ──────────────────────────────────────────────────────────────────
+  if (tool === 'text') {
+    const pr = pageWrap.getBoundingClientRect();
+    const panelX = e.clientX - pr.left;
+    const panelY = e.clientY - pr.top;
+
+    if (textHovUser >= 0) {
+      const t = getLayer(curPage).texts[textHovUser];
+      textPanelTarget = { type: 'userText', userIdx: textHovUser };
+      showTextPanel(panelX, panelY, t.text, true, t.size, t.color);
+    } else if (textHovPdf) {
+      const pdfFontSize = Math.round(textHovPdf.rh / 1.35);
+      textPanelTarget = { type: 'pdfText', pdfItem: textHovPdf };
+      showTextPanel(panelX, panelY, textHovPdf.str, true, pdfFontSize, '#000000');
+    } else {
+      textPanelTarget = { type: 'new', ref };
+      showTextPanel(panelX, panelY, '', false, Math.round(drawSize * 3), drawColor);
+    }
+    return;
+  }
+
+  // ── Lasso ─────────────────────────────────────────────────────────────────
+  if (tool === 'lasso') {
+    if (lassoSel) { clearLassoSel(); return; } // click when already selected → clear
+    lassoSel = { pts: [ref] };
+    isDrawing = true;
+    return;
+  }
+
+  // ── Whiteout ──────────────────────────────────────────────────────────────
+  if (tool === 'whiteout') {
+    woDrag = { rx: ref.x, ry: ref.y };
+    isDrawing = true;
+    return;
+  }
+
+  // ── Pen / Highlight / Eraser ──────────────────────────────────────────────
+  if (tool === 'pen' || tool === 'highlight' || tool === 'eraser') {
+    penPts = [ref];
+    isDrawing = true;
+    if (tool === 'eraser') eraseAt(ref);
+    return;
+  }
+});
+
+AC.addEventListener('mousemove', e => {
+  if (!pdfDoc) return;
+  const pos = getPos(e);
+  const ref = toRef(pos.x, pos.y);
+
+  // ── Clone cursor tracking ─────────────────────────────────────────────────
+  if (tool === 'clone') {
+    if (cloneState?.phase === 'selecting' && isDrawing) {
+      cloneState.drag.ex = ref.x; cloneState.drag.ey = ref.y;
+      redrawAnnotLayer(); return;
+    }
+    if (cloneState?.phase === 'placing') {
+      cloneState.cursor = { cx: ref.x, cy: ref.y };
+      redrawAnnotLayer(); return;
+    }
+    AC.style.cursor = cloneState?.phase === 'placing' ? 'copy' : 'crosshair';
+    return;
+  }
+
+  // ── Select: drag annotation or update hover ───────────────────────────────
+  if (tool === 'select') {
+    if (isDrawing && selDrag) {
+      const layer = getLayer(curPage);
+      const sx = snap(ref.x - selDrag.offX), sy = snap(ref.y - selDrag.offY);
+      if (selDrag.type === 'text') {
+        layer.texts[selDrag.idx].x = sx; layer.texts[selDrag.idx].y = sy;
+      } else if (selDrag.type === 'clone') {
+        layer.clones[selDrag.idx].dx = sx; layer.clones[selDrag.idx].dy = sy;
+      } else if (selDrag.type === 'whiteRect') {
+        layer.whiteRects[selDrag.idx].x = sx; layer.whiteRects[selDrag.idx].y = sy;
+      }
+      selDrag.moved = true;
+      AC.style.cursor = 'grabbing';
+      redrawAnnotLayer(); return;
+    }
+    // Hover detection
+    const layer = getLayer(curPage);
+    const prevP = selHovPdf, prevU = selHovUser;
+    selHovUser = -1;
+    for (let i = layer.texts.length - 1; i >= 0; i--) {
+      const bb = userTextBB(layer.texts[i]);
+      if (ref.x >= bb.rx && ref.x <= bb.rx+bb.rw && ref.y >= bb.ry && ref.y <= bb.ry+bb.rh) {
+        selHovUser = i; break;
+      }
+    }
+    if (selHovUser < 0) {
+      for (let i = layer.clones.length - 1; i >= 0; i--) {
+        const cl = layer.clones[i];
+        if (ref.x >= cl.dx && ref.x <= cl.dx+cl.rw && ref.y >= cl.dy && ref.y <= cl.dy+cl.rh) {
+          selHovUser = 10000 + i; break;
+        }
+      }
+    }
+    selHovPdf = selHovUser >= 0 ? null :
+      (pdfTextItems.find(ti => ref.x >= ti.rx && ref.x <= ti.rx+ti.rw && ref.y >= ti.ry && ref.y <= ti.ry+ti.rh) || null);
+    AC.style.cursor = selHovUser >= 0 ? 'grab' : (selHovPdf ? 'pointer' : 'default');
+    if (selHovPdf !== prevP || selHovUser !== prevU) redrawAnnotLayer();
+    return;
+  }
+
+  // ── Text hover ────────────────────────────────────────────────────────────
+  if (tool === 'text' && !isDrawing) {
+    const layer = getLayer(curPage);
+    const prevU = textHovUser, prevP = textHovPdf;
+    textHovUser = -1;
+    for (let i = layer.texts.length - 1; i >= 0; i--) {
+      const bb = userTextBB(layer.texts[i]);
+      if (ref.x >= bb.rx && ref.x <= bb.rx+bb.rw &&
+          ref.y >= bb.ry && ref.y <= bb.ry+bb.rh) {
+        textHovUser = i; break;
+      }
+    }
+    textHovPdf = textHovUser >= 0 ? null :
+      (pdfTextItems.find(ti =>
+        ref.x >= ti.rx && ref.x <= ti.rx+ti.rw &&
+        ref.y >= ti.ry && ref.y <= ti.ry+ti.rh) || null);
+    AC.style.cursor = (textHovUser >= 0 || textHovPdf) ? 'pointer' : 'text';
+    if (textHovUser !== prevU || textHovPdf !== prevP) redrawAnnotLayer();
+    return;
+  }
+
+  if (!isDrawing) return;
+
+  // ── Lasso drawing ─────────────────────────────────────────────────────────
+  if (tool === 'lasso' && lassoSel) {
+    lassoSel.pts.push(ref);
+    redrawAnnotLayer(); return;
+  }
+
+  // ── Whiteout drag ─────────────────────────────────────────────────────────
+  if (tool === 'whiteout' && woDrag) {
+    redrawAnnotLayer();
+    const rx = Math.min(woDrag.rx, ref.x)*zoom, ry = Math.min(woDrag.ry, ref.y)*zoom;
+    const rw = Math.abs(ref.x-woDrag.rx)*zoom,  rh = Math.abs(ref.y-woDrag.ry)*zoom;
+    actx.fillStyle = 'rgba(255,255,255,.75)';
+    actx.fillRect(rx, ry, rw, rh);
+    actx.strokeStyle = '#888'; actx.lineWidth = 1;
+    actx.setLineDash([4,4]); actx.strokeRect(rx, ry, rw, rh); actx.setLineDash([]);
+    return;
+  }
+
+  // ── Eraser ────────────────────────────────────────────────────────────────
+  if (tool === 'eraser') { eraseAt(ref); return; }
+
+  // ── Pen / Highlight ───────────────────────────────────────────────────────
+  if ((tool === 'pen' || tool === 'highlight') && penPts.length >= 1) {
+    penPts.push(ref);
+    if (penPts.length >= 2) {
+      const p = penPts, last = p.length-1;
+      actx.save();
+      actx.globalAlpha = drawOpacity;
+      actx.strokeStyle = drawColor;
+      actx.lineWidth   = (tool==='highlight'?drawSize*4:drawSize) * zoom;
+      actx.lineCap = 'round'; actx.lineJoin = 'round';
+      if (tool === 'highlight') actx.globalCompositeOperation = 'multiply';
+      actx.beginPath();
+      actx.moveTo(p[last-1].x*zoom, p[last-1].y*zoom);
+      actx.lineTo(p[last].x*zoom,   p[last].y*zoom);
+      actx.stroke(); actx.restore();
+    }
+  }
+});
+
+AC.addEventListener('mouseup', e => finishDraw(e));
+AC.addEventListener('mouseleave', e => finishDraw(e, true));
+
+function finishDraw(e, leave = false) {
+  const pos = leave ? null : getPos(e);
+  const ref = pos ? toRef(pos.x, pos.y) : null;
+
+  // ── Clone: Alt+sürükle bitti → yakala ───────────────────────────────────
+  if (tool === 'clone' && cloneState?.phase === 'selecting' && isDrawing) {
+    isDrawing = false;
+    const { sx, sy, ex, ey } = cloneState.drag;
+    const rw = Math.abs(ex-sx), rh = Math.abs(ey-sy);
+    if (rw < 5 || rh < 5) { cancelClone(); return; }
+    const rx = Math.min(sx, ex), ry = Math.min(sy, ey);
+    const url = captureArea(rx, ry, rw, rh);
+    if (!url) { cancelClone(); return; }
+    cloneState = { phase: 'placing', src: { rx, ry, rw, rh, url } };
+    cloneHint.textContent = 'Tıkla = klon yapıştır  |  Esc = iptal';
+    cloneHint.style.display = '';
+    AC.style.cursor = 'copy';
+    redrawAnnotLayer();
+    return;
+  }
+
+  // ── Select: drag bitti ───────────────────────────────────────────────────
+  if (tool === 'select' && isDrawing && selDrag) {
+    isDrawing = false;
+    if (!selDrag.moved) {
+      // Hareket etmedi → undo snapshot'ı iptal et (geri yükle)
+      restoreLayers(undoStack.pop()); updateUndoBtns();
+    }
+    selDrag = null;
+    AC.style.cursor = 'default';
+    redrawAnnotLayer(); return;
+  }
+
+  if (!isDrawing) return;
+  isDrawing = false;
+
+  // ── Lasso finish ──────────────────────────────────────────────────────────
+  if (tool === 'lasso' && lassoSel) {
+    // Keep selection active (don't auto-cut), just stop drawing
+    redrawAnnotLayer(); return;
+  }
+
+  // ── Whiteout finish ───────────────────────────────────────────────────────
+  if (tool === 'whiteout' && woDrag && ref) {
+    const rx = Math.min(woDrag.rx, ref.x), ry = Math.min(woDrag.ry, ref.y);
+    const rw = Math.abs(ref.x-woDrag.rx),  rh = Math.abs(ref.y-woDrag.ry);
+    if (rw > 2 && rh > 2) {
+      snapshot();
+      getLayer(curPage).whiteRects.push({ x:rx, y:ry, w:rw, h:rh });
+    }
+    woDrag = null; redrawAnnotLayer(); return;
+  }
+
+  // ── Pen / Highlight ───────────────────────────────────────────────────────
+  if ((tool==='pen'||tool==='highlight') && penPts.length >= 2) {
+    snapshot();
+    getLayer(curPage).strokes.push({
+      pts: penPts.slice(),
+      color: drawColor,
+      size: tool==='highlight' ? drawSize*4 : drawSize,
+      opacity: drawOpacity,
+      highlight: tool==='highlight'
+    });
+    penPts = []; redrawAnnotLayer(); return;
+  }
+
+  woDrag = null; penPts = [];
+}
+
+// Clone: tıkla → yapıştır (placing fazında, Alt olmadan)
+AC.addEventListener('click', e => {
+  if (tool !== 'clone' || !cloneState || cloneState.phase !== 'placing' || e.altKey) return;
+  const pos = getPos(e);
+  const ref = toRef(pos.x, pos.y);
+  const src = cloneState.src;
+  snapshot();
+  getLayer(curPage).clones.push({
+    dx: snap(ref.x), dy: snap(ref.y), rw: src.rw, rh: src.rh, url: src.url
+  });
+  redrawAnnotLayer();
+  toast('Klon yapıştırıldı — tekrar tıkla: bir tane daha, Esc: iptal');
+});
+
+function eraseAt(ref) {
+  const r = 22 / zoom;
+  const layer = getLayer(curPage);
+  const before = JSON.stringify({ s: layer.strokes.length, t: layer.texts.length });
+  layer.strokes    = layer.strokes.filter(s => !s.pts.some(p => Math.hypot(p.x-ref.x, p.y-ref.y) < r));
+  layer.texts      = layer.texts.filter(t => Math.hypot(t.x-ref.x, t.y-ref.y) > 36/zoom);
+  layer.whiteRects = layer.whiteRects.filter(r2 =>
+    !(ref.x>=r2.x && ref.x<=r2.x+r2.w && ref.y>=r2.y && ref.y<=r2.y+r2.h));
+  layer.clones     = layer.clones.filter(cl =>
+    !(ref.x>=cl.dx && ref.x<=cl.dx+cl.rw && ref.y>=cl.dy && ref.y<=cl.dy+cl.rh));
+  const after = JSON.stringify({ s: layer.strokes.length, t: layer.texts.length });
+  if (before !== after) redrawAnnotLayer();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// TOOL BUTTONS
+// ══════════════════════════════════════════════════════════════════════════════
+const CURSORS = {
+  select:'default', text:'text', pen:'crosshair', highlight:'crosshair',
+  whiteout:'crosshair', lasso:'cell', clone:'crosshair', eraser:'cell'
+};
+document.querySelectorAll('.tb.tool').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    tool = btn.dataset.tool;
+    document.querySelectorAll('.tb.tool').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    AC.style.cursor = CURSORS[tool] || 'default';
+    toolHint.textContent = HINTS[tool] || '';
+    // Reset ephemeral state
+    selHovPdf = null; selHovUser = -1; selDrag = null;
+    textHovPdf = null; textHovUser = -1;
+    lassoSel = null; isDrawing = false; penPts = []; woDrag = null;
+    if (cloneState) cancelClone();
+    hideTextPanel();
+    if ((tool === 'select' || tool === 'text') && pdfDoc) await extractTextItems();
+    redrawAnnotLayer();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DRAW SETTINGS — sağ panel
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Renk swatches
+const PRESET_COLORS = [
+  '#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#d9d9d9','#ffffff',
+  '#ff0000','#ff6600','#ffcc00','#00cc44','#0066ff','#6600cc','#cc0066','#00cccc'
+];
+const swatchesEl = document.getElementById('swatches');
+PRESET_COLORS.forEach(c => {
+  const d = document.createElement('div');
+  d.className = 'sw'; d.style.background = c; d.dataset.color = c;
+  d.title = c;
+  if (c === '#e53935') d.classList.add('active');
+  d.addEventListener('click', () => {
+    document.querySelectorAll('.sw').forEach(s => s.classList.remove('active'));
+    d.classList.add('active');
+    drawColor = c;
+    document.getElementById('dColor').value = c;
+  });
+  swatchesEl.appendChild(d);
+});
+
+function setDrawColor(c) {
+  drawColor = c;
+  document.getElementById('dColor').value = c;
+  document.querySelectorAll('.sw').forEach(s =>
+    s.classList.toggle('active', s.dataset.color === c));
+}
+document.getElementById('dColor').addEventListener('input', e => setDrawColor(e.target.value));
+
+function setDrawSize(v) {
+  drawSize = Math.max(1, Math.min(60, v));
+  document.getElementById('dSize').value = drawSize;
+  document.getElementById('dSizeVal').textContent = drawSize + 'px';
+  document.querySelectorAll('#sizePresets button').forEach(b =>
+    b.classList.toggle('active', +b.dataset.sz === drawSize));
+}
+document.getElementById('dSize').addEventListener('input', e => setDrawSize(+e.target.value));
+document.querySelectorAll('#sizePresets button').forEach(b =>
+  b.addEventListener('click', () => setDrawSize(+b.dataset.sz)));
+
+function setDrawOpa(v) {
+  drawOpacity = Math.max(0.1, Math.min(1, v / 100));
+  document.getElementById('dOpa').value = v;
+  document.getElementById('dOpaVal').textContent = v + '%';
+  document.querySelectorAll('#opaPresets button').forEach(b =>
+    b.classList.toggle('active', +b.dataset.opa === v));
+}
+document.getElementById('dOpa').addEventListener('input', e => setDrawOpa(+e.target.value));
+document.querySelectorAll('#opaPresets button').forEach(b =>
+  b.addEventListener('click', () => setDrawOpa(+b.dataset.opa)));
+
+// Izgara toggle
+document.getElementById('gridToggle').addEventListener('change', e => {
+  gridActive = e.target.checked;
+  document.getElementById('gridControls').style.display = gridActive ? '' : 'none';
+  if (pdfDoc) { drawGrid(); }
+});
+document.getElementById('gridSzSlider').addEventListener('input', e => {
+  gridSize = +e.target.value;
+  document.getElementById('gridSzVal').textContent = gridSize + 'px';
+  if (pdfDoc && gridActive) drawGrid();
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════════════════════
+document.getElementById('btnPrev').addEventListener('click', async () => {
+  if (!pdfDoc || curPage <= 0) return; curPage--; await renderPage();
+});
+document.getElementById('btnNext').addEventListener('click', async () => {
+  if (!pdfDoc || curPage >= pdfDoc.getPageCount()-1) return; curPage++; await renderPage();
+});
+document.getElementById('btnUndo').addEventListener('click', undo);
+document.getElementById('btnRedo').addEventListener('click', redo);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ZOOM
+// ══════════════════════════════════════════════════════════════════════════════
+document.getElementById('btnZoomIn').addEventListener('click',  () => setZoom(zoom + 0.15));
+document.getElementById('btnZoomOut').addEventListener('click', () => setZoom(zoom - 0.15));
+document.getElementById('zoomInp').addEventListener('change', e => setZoom(+e.target.value/100));
+function setZoom(z) {
+  zoom = Math.max(0.25, Math.min(4, z));
+  document.getElementById('zoomInp').value = Math.round(zoom*100);
+  if (pdfDoc) renderPage();
+}
+viewArea.addEventListener('wheel', e => {
+  if (!e.ctrlKey && !e.metaKey) return;
+  e.preventDefault();
+  setZoom(zoom + (e.deltaY < 0 ? 0.1 : -0.1));
+}, { passive: false });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ══════════════════════════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (!pdfDoc) return;
+  const isInp = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
+
+  // Ctrl shortcuts work everywhere
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); return; }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key==='Z'))) {
+    e.preventDefault(); redo(); return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'x') {
+    e.preventDefault();
+    if (tool === 'lasso') cutLassoSelection();
+    return;
+  }
+
+  if (isInp) return;
+
+  if (e.key === 'Escape') {
+    if (tool === 'lasso')  clearLassoSel();
+    if (tool === 'clone')  cancelClone();
+    hideTextPanel();
+  }
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (tool === 'lasso' && lassoSel) cutLassoSelection();
+  }
+  if (e.key === 'ArrowLeft'  && curPage > 0)                       { curPage--; renderPage(); }
+  if (e.key === 'ArrowRight' && curPage < pdfDoc.getPageCount()-1) { curPage++; renderPage(); }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DOWNLOAD — bake all annotations into PDF
+// ══════════════════════════════════════════════════════════════════════════════
+document.getElementById('btnDL').addEventListener('click', async () => {
+  if (!pdfDoc) return;
+  setProgress('Anotasyonlar uygulanıyor…', 5);
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const count = pdfDoc.getPageCount();
+
+  for (let pi = 0; pi < count; pi++) {
+    const layer = annotLayers.get(pi);
+    if (!layer) continue;
+    const pdfPage = pdfDoc.getPage(pi);
+    const { width: pw, height: ph } = pdfPage.getSize();
+    const jsPage = await pdfJsDoc.getPage(pi+1);
+    const vp1 = jsPage.getViewport({ scale: 1.0 });
+    const sx = pw / vp1.width, sy = ph / vp1.height;
+    setProgress(`Sayfa ${pi+1} / ${count}…`, 5 + (pi/count)*88);
+
+    // White rects
+    layer.whiteRects.forEach(r => {
+      pdfPage.drawRectangle({ x:r.x*sx, y:ph-(r.y+r.h)*sy, width:r.w*sx, height:r.h*sy,
+        color:rgb(1,1,1), borderWidth:0 });
+    });
+    // Lasso fills
+    layer.lassoFills.forEach(pts => {
+      if (pts.length < 3) return;
+      const d = `M ${pts[0].x*sx},${ph-pts[0].y*sy} ` +
+        pts.slice(1).map(p => `L ${p.x*sx},${ph-p.y*sy}`).join(' ') + ' Z';
+      try { pdfPage.drawSvgPath(d, { color: rgb(1,1,1) }); } catch(_){}
+    });
+    // Clones (PNG embed)
+    for (const cl of layer.clones) {
+      try {
+        const b64  = cl.url.split(',')[1];
+        const bin  = atob(b64);
+        const buf  = new Uint8Array(bin.length);
+        for (let j = 0; j < bin.length; j++) buf[j] = bin.charCodeAt(j);
+        const pngImg = await pdfDoc.embedPng(buf);
+        pdfPage.drawImage(pngImg, {
+          x: cl.dx*sx, y: ph-(cl.dy+cl.rh)*sy,
+          width: cl.rw*sx, height: cl.rh*sy
+        });
+      } catch(_){}
+    }
+    // Strokes
+    layer.strokes.forEach(s => {
+      if (s.pts.length < 2) return;
+      const col = hexToRgb(s.color);
+      for (let i = 1; i < s.pts.length; i++) {
+        const a = s.pts[i-1], b2 = s.pts[i];
+        pdfPage.drawLine({
+          start:{x:a.x*sx, y:ph-a.y*sy}, end:{x:b2.x*sx, y:ph-b2.y*sy},
+          thickness: s.size*sx,
+          color: rgb(col.r,col.g,col.b), opacity: s.opacity
+        });
+      }
+    });
+    // Texts
+    layer.texts.forEach(t => {
+      const col  = hexToRgb(t.color);
+      const size = Math.max(6, t.size*sx);
+      try {
+        pdfPage.drawText(sanitize(t.text), {
+          x: t.x*sx, y: ph-t.y*sy-size, size, font,
+          color: rgb(col.r,col.g,col.b), opacity: t.opacity
+        });
+      } catch(_){}
+    });
+  }
+
+  setProgress('Kaydediliyor…', 97);
+  const bytes = await pdfDoc.save();
+  const blob  = new Blob([bytes], { type: 'application/pdf' });
+  const url   = URL.createObjectURL(blob);
+  Object.assign(document.createElement('a'), { href:url, download:'düzenlenmiş.pdf' }).click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  setProgress(null);
+  toast('PDF indirildi!');
+});
+
+// Init tool hint
+toolHint.textContent = HINTS[tool];
+</script>
+</body>
+</html>

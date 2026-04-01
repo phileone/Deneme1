@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_all_pdfs"
+        android:icon="@drawable/ic_pdf"
+        android:title="@string/all_pdfs_title"
+        android:checked="true" />
+    <item
+        android:id="@+id/nav_folders"
+        android:icon="@drawable/ic_folder"
+        android:title="@string/folders_title" />
+</menu>
