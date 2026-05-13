@@ -1,0 +1,184 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #1a1a1a;
+    color: #fff;
+    overflow: hidden;
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* RDR2 Vintage Harita Stili */
+.leaflet-container {
+    background-color: #2a2a2a;
+}
+
+.leaflet-tile {
+    filter: sepia(0.3) saturate(0.8);
+}
+
+/* Kontrol Paneli */
+.controls-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    background: rgba(26, 26, 26, 0.95);
+    border: 2px solid #8b7355;
+    border-radius: 8px;
+    padding: 15px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.location-info {
+    margin-bottom: 15px;
+    border-bottom: 2px solid #8b7355;
+    padding-bottom: 12px;
+}
+
+.location-info h2 {
+    font-size: 14px;
+    color: #d4af37;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.location-info p {
+    font-size: 12px;
+    margin: 4px 0;
+    font-family: 'Courier New', monospace;
+    color: #e0e0e0;
+}
+
+.location-info span {
+    color: #d4af37;
+    font-weight: bold;
+}
+
+.controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.btn {
+    padding: 10px;
+    border: 1px solid #8b7355;
+    background: rgba(60, 50, 35, 0.8);
+    color: #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.btn:hover {
+    background: rgba(80, 65, 45, 0.9);
+    border-color: #d4af37;
+    color: #d4af37;
+}
+
+.btn.active {
+    background: rgba(139, 115, 85, 0.6);
+    border-color: #d4af37;
+    color: #d4af37;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.status-info {
+    border-top: 2px solid #8b7355;
+    padding-top: 10px;
+    font-size: 11px;
+    color: #b0b0b0;
+}
+
+.status-info p {
+    margin: 4px 0;
+}
+
+#status {
+    color: #d4af37;
+    font-weight: bold;
+}
+
+/* Leaflet Özel Marker Stili */
+.leaflet-marker-icon {
+    filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.8));
+}
+
+.custom-marker {
+    width: 32px;
+    height: 32px;
+    background: radial-gradient(circle at 30% 30%, #ffd700, #d4af37);
+    border: 2px solid #8b7355;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.6),
+                inset 0 0 4px rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+/* Doğruluk Çemberi */
+.accuracy-circle {
+    fill: rgba(212, 175, 55, 0.1);
+    stroke: #d4af37;
+    stroke-width: 2;
+    stroke-dasharray: 5, 5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .controls-panel {
+        width: 280px;
+        bottom: 10px;
+        right: 10px;
+        padding: 12px;
+    }
+
+    .controls {
+        grid-template-columns: 1fr;
+    }
+
+    .btn {
+        padding: 8px;
+        font-size: 11px;
+    }
+}
+
+/* Leaflet Harita Kontrolleri */
+.leaflet-control {
+    border-color: #8b7355 !important;
+    background: rgba(26, 26, 26, 0.9) !important;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    color: #d4af37 !important;
+    font-weight: bold;
+}
+
+.leaflet-control-zoom-in:hover,
+.leaflet-control-zoom-out:hover {
+    background-color: rgba(139, 115, 85, 0.6) !important;
+}

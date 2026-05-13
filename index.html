@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Maps IRL - RDR2 Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="map"></div>
+
+    <div class="controls-panel">
+        <div class="location-info">
+            <h2>Konumunuz</h2>
+            <div id="coordinates">
+                <p>Latitude: <span id="lat">--</span></p>
+                <p>Longitude: <span id="lon">--</span></p>
+                <p>Doğruluk: <span id="accuracy">--</span>m</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="centerBtn" class="btn">📍 Konumuma Git</button>
+            <button id="lockBtn" class="btn active">🔒 Takip Et</button>
+            <button id="zoomInBtn" class="btn">➕ Yaklaş</button>
+            <button id="zoomOutBtn" class="btn">➖ Uzaklaş</button>
+        </div>
+
+        <div class="status-info">
+            <p id="status">GPS başlatılıyor...</p>
+            <p id="mapInfo">Seviye: <span id="zoomLevel">13</span></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
