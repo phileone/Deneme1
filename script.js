@@ -6,18 +6,120 @@ let userLocation = { lat: 0, lng: 0 };
 let isLocked = true;
 let watchId = null;
 let isFirstLocation = true;
+let poiMarkers = [];
 
 // Harita Katmanları (Custom Tile Layer)
 const tileLayer = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const attribution = '&copy; OpenStreetMap contributors';
 
+// RDR2 İkon Sistemi
+const RDR2_ICONS = {
+    market: '🏪',
+    bar: '🍺',
+    home: '🏠',
+    saloon: '🏛️',
+    camp: '⛺',
+    danger: '💀',
+    church: '⛪',
+    shop: '🛍️',
+    restaurant: '🍖',
+    stable: '🐴',
+    easter_egg: '🎭',
+    treasure: '💎'
+};
+
+// Gerçek Dünya POI'leri (İstanbul Örneği)
+const POI_LOCATIONS = [
+    // Marketler
+    {
+        lat: 41.0264,
+        lng: 28.9924,
+        name: 'BİM Market',
+        type: 'market',
+        description: 'Erzincan, Eminönü'
+    },
+    {
+        lat: 41.0082,
+        lng: 28.9784,
+        name: 'A101 Market',
+        type: 'market',
+        description: 'Sultanahmet'
+    },
+    {
+        lat: 41.0268,
+        lng: 29.0042,
+        name: 'Tesco Kipa',
+        type: 'shop',
+        description: 'Eminönü'
+    },
+    // Barlar ve Restoranlar
+    {
+        lat: 41.0352,
+        lng: 28.9921,
+        name: 'Vault Bar',
+        type: 'bar',
+        description: 'Şehzadebaşı - RDR2 Easter Egg'
+    },
+    {
+        lat: 41.0085,
+        lng: 28.9819,
+        name: 'Red Dead Saloon',
+        type: 'saloon',
+        description: 'Sultanahmet - Gizli Barınak 🎭'
+    },
+    {
+        lat: 41.0055,
+        lng: 28.9765,
+        name: 'Traverna Yeşilçam',
+        type: 'restaurant',
+        description: 'Cağaloğlu'
+    },
+    // Kamp Alanları
+    {
+        lat: 41.0301,
+        lng: 29.0125,
+        name: 'Kadıköy Kamp',
+        type: 'camp',
+        description: 'RDR2 Stilinde Kamp ⛺'
+    },
+    {
+        lat: 41.0429,
+        lng: 28.9887,
+        name: 'Gümrük Kalesi',
+        type: 'danger',
+        description: 'Tehlikeli Bölge 💀'
+    },
+    // Easter Eggs
+    {
+        lat: 41.0105,
+        lng: 28.9804,
+        name: 'Gizli Hazine',
+        type: 'treasure',
+        description: 'Yeraltında 💎 bul'
+    },
+    {
+        lat: 41.0211,
+        lng: 28.9656,
+        name: 'Arthur\'s Hide',
+        type: 'easter_egg',
+        description: 'RDR2 Easter Egg 🎭'
+    },
+    {
+        lat: 41.0164,
+        lng: 29.0075,
+        name: 'Van der Linde Kampı',
+        type: 'easter_egg',
+        description: 'RDR2 Ana Kamp Referansı'
+    }
+];
+
 // Başlat
 function initMap() {
-    // Varsayılan konum (San Francisco - RDR2'nin esinlendiği bölge)
-    const defaultLat = 37.7749;
-    const defaultLng = -122.4194;
+    // Varsayılan konum (İstanbul)
+    const defaultLat = 41.0082;
+    const defaultLng = 28.9784;
 
-    map = L.map('map').setView([defaultLat, defaultLng], 13);
+    map = L.map('map').setView([defaultLat, defaultLng], 14);
 
     // RDR2 Vintage Harita Teması
     L.tileLayer(tileLayer, {
@@ -28,6 +130,9 @@ function initMap() {
 
     // Harita renderi sonrası sepia efekti
     updateMapStyle();
+
+    // POI'leri Ekle
+    addPOIMarkers();
 
     // GPS İzle
     startGPSTracking();
@@ -169,8 +274,56 @@ function setupControls() {
         map.zoomOut();
     });
 
+    // POI sayısını göster
+    document.getElementById('poiTotal').textContent = POI_LOCATIONS.length;
+
     map.on('zoomend', () => {
         document.getElementById('zoomLevel').textContent = map.getZoom();
+    });
+}
+
+// POI Marker'larını Ekle
+function addPOIMarkers() {
+    POI_LOCATIONS.forEach((poi, index) => {
+        const icon = RDR2_ICONS[poi.type] || '📍';
+
+        const markerIcon = L.divIcon({
+            className: 'poi-marker',
+            html: `
+                <div class="poi-icon" data-type="${poi.type}">
+                    ${icon}
+                </div>
+            `,
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
+        });
+
+        const marker = L.marker([poi.lat, poi.lng], { icon: markerIcon })
+            .addTo(map)
+            .bindPopup(`
+                <div class="poi-popup">
+                    <div class="poi-popup-icon">${icon}</div>
+                    <h3>${poi.name}</h3>
+                    <p class="poi-description">${poi.description}</p>
+                    <p class="poi-coords">📍 ${poi.lat.toFixed(4)}, ${poi.lng.toFixed(4)}</p>
+                </div>
+            `);
+
+        // Hover efekti
+        marker.on('mouseover', function() {
+            this.openPopup();
+            const element = document.querySelector(`[data-poi-id="${index}"]`);
+            if (element) element.classList.add('active');
+        });
+
+        marker.on('mouseout', function() {
+            this.closePopup();
+            const element = document.querySelector(`[data-poi-id="${index}"]`);
+            if (element) element.classList.remove('active');
+        });
+
+        poiMarkers.push(marker);
     });
 }
 
@@ -190,6 +343,120 @@ function updateMapStyle() {
             background: rgba(26, 26, 26, 0.8) !important;
             color: #999 !important;
             font-size: 11px !important;
+        }
+
+        /* POI Marker Stilleri */
+        .poi-marker {
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .poi-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: rgba(26, 26, 26, 0.85);
+            border: 2px solid #d4af37;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.6));
+        }
+
+        .poi-icon:hover {
+            transform: scale(1.2);
+            background: rgba(139, 115, 85, 0.9);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+        }
+
+        /* Popup Stilleri */
+        .leaflet-popup-content-wrapper {
+            background: rgba(26, 26, 26, 0.95) !important;
+            border: 2px solid #d4af37 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7) !important;
+        }
+
+        .leaflet-popup-tip {
+            border-top-color: rgba(26, 26, 26, 0.95) !important;
+        }
+
+        .poi-popup {
+            color: #e0e0e0;
+            text-align: center;
+        }
+
+        .poi-popup-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .poi-popup h3 {
+            color: #d4af37;
+            margin: 6px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .poi-description {
+            font-size: 11px;
+            color: #b0b0b0;
+            margin: 4px 0;
+            font-style: italic;
+        }
+
+        .poi-coords {
+            font-size: 10px;
+            color: #888;
+            margin-top: 8px;
+            font-family: monospace;
+        }
+
+        /* Easter Egg Ikonları */
+        .poi-icon[data-type="easter_egg"] {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 16px rgba(212, 175, 55, 0.9);
+            }
+        }
+
+        .poi-icon[data-type="treasure"] {
+            animation: glow 0.8s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 4px #ffd700);
+            }
+            to {
+                filter: drop-shadow(0 0 12px #ffd700);
+            }
+        }
+
+        .poi-icon[data-type="danger"] {
+            border-color: #ff4444 !important;
+            animation: warning 0.6s infinite;
+        }
+
+        @keyframes warning {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
         }
     `;
     document.head.appendChild(filter);

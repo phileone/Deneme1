@@ -12,10 +12,10 @@
 
     <div class="controls-panel">
         <div class="location-info">
-            <h2>Konumunuz</h2>
+            <h2>📍 Konumunuz</h2>
             <div id="coordinates">
-                <p>Latitude: <span id="lat">--</span></p>
-                <p>Longitude: <span id="lon">--</span></p>
+                <p>Lat: <span id="lat">--</span></p>
+                <p>Lng: <span id="lon">--</span></p>
                 <p>Doğruluk: <span id="accuracy">--</span>m</p>
             </div>
         </div>
@@ -27,9 +27,22 @@
             <button id="zoomOutBtn" class="btn">➖ Uzaklaş</button>
         </div>
 
+        <div class="poi-legend">
+            <h3>🗺️ POI Türleri</h3>
+            <div class="legend-items">
+                <p><span class="legend-icon">🏪</span> Market</p>
+                <p><span class="legend-icon">🍺</span> Bar/Saloon</p>
+                <p><span class="legend-icon">⛺</span> Kamp</p>
+                <p><span class="legend-icon">🎭</span> Easter Egg</p>
+                <p><span class="legend-icon">💎</span> Hazine</p>
+                <p><span class="legend-icon">💀</span> Tehlikeli</p>
+            </div>
+        </div>
+
         <div class="status-info">
             <p id="status">GPS başlatılıyor...</p>
-            <p id="mapInfo">Seviye: <span id="zoomLevel">13</span></p>
+            <p id="mapInfo">Seviye: <span id="zoomLevel">14</span></p>
+            <p id="poiCount">POI: <span id="poiTotal">0</span></p>
         </div>
     </div>
 
